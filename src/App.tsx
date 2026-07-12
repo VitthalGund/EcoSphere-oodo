@@ -16,6 +16,13 @@ import { EnvironmentalDashboard } from './features/environmental/EnvironmentalDa
 import { CarbonTransactionsPage } from './features/environmental/CarbonTransactionsPage';
 import { EnvironmentalGoalsPage } from './features/environmental/EnvironmentalGoalsPage';
 
+// Phase 4 real page imports
+import { ChallengesPage } from './features/gamification/ChallengesPage';
+import { ChallengeDetailPage } from './features/gamification/ChallengeDetailPage';
+import { BadgesPage } from './features/gamification/BadgesPage';
+import { RewardsPage } from './features/gamification/RewardsPage';
+import { LeaderboardPage } from './features/gamification/LeaderboardPage';
+
 function App() {
   return (
     <AuthProvider>
@@ -128,7 +135,17 @@ function App() {
             element={
               <ProtectedRoute>
                 <Layout>
-                  <PlaceholderPage title="Sustainability Challenges" />
+                  <ChallengesPage />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/gamification/challenges/:id"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <ChallengeDetailPage />
                 </Layout>
               </ProtectedRoute>
             }
@@ -148,7 +165,7 @@ function App() {
             element={
               <ProtectedRoute>
                 <Layout>
-                  <PlaceholderPage title="Gamified Achievement Badges" />
+                  <BadgesPage />
                 </Layout>
               </ProtectedRoute>
             }
@@ -158,7 +175,7 @@ function App() {
             element={
               <ProtectedRoute>
                 <Layout>
-                  <PlaceholderPage title="Eco Rewards Store" />
+                  <RewardsPage />
                 </Layout>
               </ProtectedRoute>
             }
@@ -168,7 +185,7 @@ function App() {
             element={
               <ProtectedRoute>
                 <Layout>
-                  <PlaceholderPage title="Performance Leaderboards" />
+                  <LeaderboardPage />
                 </Layout>
               </ProtectedRoute>
             }
