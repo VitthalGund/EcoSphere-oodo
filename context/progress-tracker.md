@@ -4,7 +4,7 @@
 working log, not documentation.*
 
 ## Current phase
-**Phase 5 Completed — ESG Score Gauge Centerpiece (weighted centerpiece donut gauge with dynamic segment inspection and active ESG index calculations) is fully functional. Ready for Phase 6: AI Emission Classifier.**
+**Phase 6 Completed — AI Emission Classifier (full client service calling Gemini API and local Ollama fallback, with confirmable and editable review panels in the carbon ledger) is fully functional. Ready for Phase 7: Shallow Social & Governance CRUD.**
 
 ## Done
 - [x] PS selected: EcoSphere (over TransitOps, AssetFlow) — see `research/EcoSphere_Deep_Dive_Research.md`
@@ -16,12 +16,12 @@ working log, not documentation.*
 - [x] Phase 3: Environmental Pillar (Carbon Ledger CRUD, auto-calculated CO₂e, Environmental Dashboard with Recharts timeline/scope/benchmarks, and dynamic scores engine)
 - [x] Phase 4: Gamification (Challenges catalog, enrollments, proof submissions, atomic RPC reward claims, XP leaderboards, and generic Badge rule evaluation)
 - [x] Phase 5: ESG Score Gauge (weighted centerpiece donut chart with segment-click inspector on Home Dashboard)
+- [x] Phase 6: AI Emission Classifier (structured classification using Gemini API with local Ollama fallback, featuring audit verification UI)
 
 ## In Progress
-- [ ] Phase 6: AI Emission Classifier
+- [ ] Phase 7: Shallow Social + Governance CRUD
 
 ## Not Started (in build order — see `ai-workflow-rules.md`)
-- [ ] Phase 7: Shallow Social + Governance CRUD
 - [ ] Phase 8: Stretch features (Score Copilot → NL Report Builder → Recommender → Vision Check)
 
 ## Open questions / decisions needed
@@ -31,10 +31,12 @@ working log, not documentation.*
 *(none yet)*
 
 ## Next steps
-1. Setup a local mock / Edge Function stub executing semantic matching or Gemini API simulation for classifying purchase descriptions.
-2. Build an "AI Assist" import/classification popup on the Carbon Transactions page.
-3. Accept raw strings like "Purchased 300 liters of gasoline" and parse them into factor matches (Gasoline factor) and raw amounts (300).
-4. Provide a confirm step enabling the user to edit parsed fields before saving to the database ledger.
+1. Implement Social CRUD queries for CSR Activities and volunteer participations.
+2. Build CSR Activities Catalog page with sign-up trigger and volunteer log trackers.
+3. Implement Governance CRUD queries for ESG Policies and Acknowledgements.
+4. Build Policy documentation reader with sign-off buttons and progress audit tables.
+5. Map Phase 7 routes in `src/App.tsx`.
+
 
 
 
