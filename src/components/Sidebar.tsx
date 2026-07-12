@@ -14,6 +14,7 @@ import {
   ChevronRight,
   LogOut,
   Sparkles,
+  X,
 } from "lucide-react";
 
 interface NavItem {
@@ -31,7 +32,12 @@ interface NavSection {
   colorClass: string;
 }
 
-export const Sidebar: React.FC = () => {
+interface SidebarProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
   const { profile, signOut } = useAuth();
   const location = useLocation();
   const [expandedSections, setExpandedSections] = useState<
@@ -52,6 +58,10 @@ export const Sidebar: React.FC = () => {
     governance: 0,
     gamification: 3,
   });
+
+  useEffect(() => {
+    onClose();
+  }, [location.pathname]);
 
   useEffect(() => {
     if (!profile) return;
@@ -192,9 +202,9 @@ export const Sidebar: React.FC = () => {
   ];
 
   return (
-    <aside className="w-64 bg-base border-r border-border h-screen flex flex-col justify-between select-none fixed left-0 top-0 z-20">
+    <aside className={`w-64 bg-base border-r border-border h-screen flex flex-col justify-between select-none fixed left-0 top-0 z-30 transition-transform duration-300 transform ${isOpen ? "translate-x-0" : "-translate-x-full"} lg:translate-x-0`}>
       {/* Sidebar Top: Logo */}
-      <div className="p-6 border-b border-border">
+      <div className="p-6 border-b border-border flex items-center justify-between">
         <NavLink to="/" className="flex items-center space-x-3">
           <div className="h-9 w-9 rounded-xl bg-primary flex items-center justify-center shadow-md transform rotate-6 hover:rotate-12 transition-transform">
             <span className="text-white text-lg">🌱</span>
@@ -203,6 +213,12 @@ export const Sidebar: React.FC = () => {
             EcoSphere
           </span>
         </NavLink>
+        <button
+          onClick={onClose}
+          className="p-1 rounded-lg hover:bg-surface text-text-secondary hover:text-text-primary lg:hidden"
+        >
+          <X className="h-4.5 w-4.5" />
+        </button>
       </div>
 
       {/* Navigation Scroll Area */}
