@@ -20,6 +20,7 @@ import {
 interface NavItem {
   name: string;
   path: string;
+  allowedRoles?: string[];
 }
 
 interface NavSection {
@@ -30,6 +31,7 @@ interface NavSection {
   countKey?: string;
   subItems: NavItem[];
   colorClass: string;
+  allowedRoles?: string[];
 }
 
 interface SidebarProps {
@@ -129,9 +131,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
       colorClass: "text-primary border-primary hover:bg-primary/5",
       subItems: [
         { name: "Dashboard", path: "/environmental/dashboard" },
-        { name: "Emission Factors", path: "/environmental/factors" },
+        { name: "Emission Factors", path: "/environmental/factors", allowedRoles: ['admin', 'department_head'] },
         { name: "Carbon Transactions", path: "/environmental/transactions" },
-        { name: "Environmental Goals", path: "/environmental/goals" },
+        { name: "Environmental Goals", path: "/environmental/goals", allowedRoles: ['admin', 'department_head'] },
       ],
     },
     {
@@ -182,6 +184,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
       emoji: "📈",
       basePath: "/reports",
       colorClass: "text-text-primary border-text-primary hover:bg-surface",
+      allowedRoles: ['admin', 'department_head'],
       subItems: [
         { name: "ESG Summary", path: "/reports/summary" },
         { name: "Report Builder", path: "/reports/builder" },
@@ -193,6 +196,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
       emoji: "⚙",
       basePath: "/settings",
       colorClass: "text-text-secondary border-text-secondary hover:bg-surface",
+      allowedRoles: ['admin'],
       subItems: [
         { name: "Departments", path: "/settings/departments" },
         { name: "Categories", path: "/settings/categories" },
@@ -205,7 +209,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
     <aside className={`w-64 bg-base border-r border-border h-screen flex flex-col justify-between select-none fixed left-0 top-0 z-30 transition-transform duration-300 transform ${isOpen ? "translate-x-0" : "-translate-x-full"} lg:translate-x-0`}>
       {/* Sidebar Top: Logo */}
       <div className="p-6 border-b border-border flex items-center justify-between">
-        <NavLink to="/" className="flex items-center space-x-3">
+        <NavLink to="/dashboard" className="flex items-center space-x-3">
           <div className="h-9 w-9 rounded-xl bg-primary flex items-center justify-center shadow-md transform rotate-6 hover:rotate-12 transition-transform">
             <span className="text-white text-lg">🌱</span>
           </div>
@@ -225,7 +229,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
       <div className="flex-1 overflow-y-auto px-4 py-6 space-y-2">
         {/* Main Dashboard Link */}
         <NavLink
-          to="/"
+          to="/dashboard"
           end
           className={({ isActive }) =>
             `flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-semibold transition-all ${
@@ -246,7 +250,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
         </div>
 
         {/* Dynamic Sections */}
-        {navSections.map((section) => {
+        {navSections
+          .filter(section => !section.allowedRoles || section.allowedRoles.includes(profile?.role || ''))
+          .map((section) => {
           const isExpanded = expandedSections[section.name];
           const isCurrentPath = location.pathname.startsWith(section.basePath);
           const activeCount = section.countKey ? counts[section.countKey] : 0;
@@ -283,7 +289,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
               {/* Sub items */}
               {isExpanded && (
                 <div className="pl-9 pr-2 py-1 space-y-1 border-l border-border ml-5">
-                  {section.subItems.map((item) => (
+                  {section.subItems
+                    .filter(item => !item.allowedRoles || item.allowedRoles.includes(profile?.role || ''))
+                    .map((item) => (
                     <NavLink
                       key={item.name}
                       to={item.path}

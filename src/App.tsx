@@ -4,7 +4,8 @@ import { AuthProvider } from "./features/auth/AuthContext";
 import { ProtectedRoute } from "./features/auth/ProtectedRoute";
 import { LoginPage } from "./features/auth/LoginPage";
 import { Layout } from "./components/Layout";
-import { PlaceholderPage } from "./pages/PlaceholderPage";
+import { ESGSummaryPage } from "./features/reports/ESGSummaryPage";
+import { ReportBuilderPage } from "./features/reports/ReportBuilderPage";
 import { DashboardPage } from "./features/dashboard/DashboardPage";
 
 // Phase 2 real page imports
@@ -21,6 +22,7 @@ import { EnvironmentalGoalsPage } from "./features/environmental/EnvironmentalGo
 // Phase 4 real page imports
 import { ChallengesPage } from "./features/gamification/ChallengesPage";
 import { ChallengeDetailPage } from "./features/gamification/ChallengeDetailPage";
+import { ParticipationPage } from "./features/gamification/ParticipationPage";
 import { BadgesPage } from "./features/gamification/BadgesPage";
 import { RewardsPage } from "./features/gamification/RewardsPage";
 import { LeaderboardPage } from "./features/gamification/LeaderboardPage";
@@ -30,46 +32,29 @@ import { CSRActivitiesPage } from "./features/social/CSRActivitiesPage";
 import { CSRParticipationsPage } from "./features/social/CSRParticipationsPage";
 import { PoliciesPage } from "./features/governance/PoliciesPage";
 import { AcknowledgementsPage } from "./features/governance/AcknowledgementsPage";
-import { useAuth } from "./features/auth/AuthContext";
 import { LandingPage } from "./pages/LandingPage";
 import { AboutPage } from "./pages/AboutPage";
 
-const HomeSelector = () => {
-  const { profile, loading } = useAuth();
-  if (loading) {
-    return (
-      <div className="h-screen flex items-center justify-center bg-[#0b1326]">
-        <div className="animate-spin h-8 w-8 border-4 border-[#10b981] border-t-transparent rounded-full"></div>
-      </div>
-    );
-  }
-  
-  if (profile) {
-    return (
-      <ProtectedRoute>
-        <Layout>
-          <DashboardPage />
-        </Layout>
-      </ProtectedRoute>
-    );
-  }
-  return <LandingPage />;
-};
-
+// Removed HomeSelector as / will always map to LandingPage
 function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
         <Routes>
           {/* Public Routes */}
+          <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/about" element={<AboutPage />} />
 
-          {/* Home Route */}
+          {/* Main Dashboard */}
           <Route
-            path="/"
+            path="/dashboard"
             element={
-              <HomeSelector />
+              <ProtectedRoute>
+                <Layout>
+                  <DashboardPage />
+                </Layout>
+              </ProtectedRoute>
             }
           />
 
@@ -87,7 +72,7 @@ function App() {
           <Route
             path="/environmental/factors"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute allowedRoles={['admin', 'department_head']}>
                 <Layout>
                   <EmissionFactorsPage />
                 </Layout>
@@ -107,7 +92,7 @@ function App() {
           <Route
             path="/environmental/goals"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute allowedRoles={['admin', 'department_head']}>
                 <Layout>
                   <EnvironmentalGoalsPage />
                 </Layout>
@@ -185,7 +170,7 @@ function App() {
             element={
               <ProtectedRoute>
                 <Layout>
-                  <PlaceholderPage title="Challenge Participation Feed" />
+                  <ParticipationPage />
                 </Layout>
               </ProtectedRoute>
             }
@@ -225,9 +210,9 @@ function App() {
           <Route
             path="/reports/summary"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute allowedRoles={['admin', 'department_head']}>
                 <Layout>
-                  <PlaceholderPage title="ESG Score Summary Reports" />
+                  <ESGSummaryPage />
                 </Layout>
               </ProtectedRoute>
             }
@@ -235,9 +220,9 @@ function App() {
           <Route
             path="/reports/builder"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute allowedRoles={['admin', 'department_head']}>
                 <Layout>
-                  <PlaceholderPage title="Custom ESG Report Builder" />
+                  <ReportBuilderPage />
                 </Layout>
               </ProtectedRoute>
             }
@@ -247,7 +232,7 @@ function App() {
           <Route
             path="/settings/departments"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute allowedRoles={['admin']}>
                 <Layout>
                   <DepartmentsPage />
                 </Layout>
@@ -257,7 +242,7 @@ function App() {
           <Route
             path="/settings/categories"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute allowedRoles={['admin']}>
                 <Layout>
                   <CategoriesPage />
                 </Layout>
@@ -267,7 +252,7 @@ function App() {
           <Route
             path="/settings/config"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute allowedRoles={['admin']}>
                 <Layout>
                   <ESGConfigPage />
                 </Layout>
