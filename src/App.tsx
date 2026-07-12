@@ -30,6 +30,31 @@ import { CSRActivitiesPage } from "./features/social/CSRActivitiesPage";
 import { CSRParticipationsPage } from "./features/social/CSRParticipationsPage";
 import { PoliciesPage } from "./features/governance/PoliciesPage";
 import { AcknowledgementsPage } from "./features/governance/AcknowledgementsPage";
+import { useAuth } from "./features/auth/AuthContext";
+import { LandingPage } from "./pages/LandingPage";
+import { AboutPage } from "./pages/AboutPage";
+
+const HomeSelector = () => {
+  const { profile, loading } = useAuth();
+  if (loading) {
+    return (
+      <div className="h-screen flex items-center justify-center bg-[#0b1326]">
+        <div className="animate-spin h-8 w-8 border-4 border-[#10b981] border-t-transparent rounded-full"></div>
+      </div>
+    );
+  }
+  
+  if (profile) {
+    return (
+      <ProtectedRoute>
+        <Layout>
+          <DashboardPage />
+        </Layout>
+      </ProtectedRoute>
+    );
+  }
+  return <LandingPage />;
+};
 
 function App() {
   return (
@@ -38,16 +63,13 @@ function App() {
         <Routes>
           {/* Public Routes */}
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/about" element={<AboutPage />} />
 
-          {/* Protected Routes (wrapped in Layout) */}
+          {/* Home Route */}
           <Route
             path="/"
             element={
-              <ProtectedRoute>
-                <Layout>
-                  <DashboardPage />
-                </Layout>
-              </ProtectedRoute>
+              <HomeSelector />
             }
           />
 
