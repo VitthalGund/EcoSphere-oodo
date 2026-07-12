@@ -10,7 +10,7 @@ import {
   getPolicyAcknowledgements 
 } from '../../lib/db/policies';
 import { recalculateAllScores } from '../../lib/rules/scoreCalculator';
-import { EsgPolicy, PolicyAcknowledgement } from '../../lib/types';
+import { ESGPolicy, PolicyAcknowledgement } from '../../lib/types';
 import { toast } from 'react-hot-toast';
 import { Shield, Plus, X, BookOpen, Signature, CheckSquare, Eye } from 'lucide-react';
 import { useAuth } from '../auth/AuthContext';
@@ -18,9 +18,9 @@ import { Link } from 'react-router-dom';
 
 export const PoliciesPage: React.FC = () => {
   const { profile } = useAuth();
-  const [policies, setPolicies] = useState<EsgPolicy[]>([]);
+  const [policies, setPolicies] = useState<ESGPolicy[]>([]);
   const [acks, setAcks] = useState<PolicyAcknowledgement[]>([]);
-  const [selectedPolicy, setSelectedPolicy] = useState<EsgPolicy | null>(null);
+  const [selectedPolicy, setSelectedPolicy] = useState<ESGPolicy | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -72,7 +72,7 @@ export const PoliciesPage: React.FC = () => {
 
     const payload = {
       title,
-      content,
+      description: content,
       version,
       status: 'published' as any, // Auto-publish for hackathon ease
       created_by: profile?.id || ''
@@ -199,13 +199,13 @@ export const PoliciesPage: React.FC = () => {
           {selectedPolicy ? (
             <Card 
               title={selectedPolicy.title} 
-              subtitle={`Version: ${selectedPolicy.version} | Published: ${new Date(selectedPolicy.created_at).toLocaleDateString()}`}
+              subtitle={`Version: ${selectedPolicy.version} | Published: ${new Date(selectedPolicy.created_at || '').toLocaleDateString()}`}
               accent="secondary"
             >
               <div className="space-y-6 text-left">
                 {/* Content body */}
                 <div className="bg-surface border border-border p-5 rounded-xl text-xs leading-relaxed text-text-secondary whitespace-pre-wrap font-medium font-mono min-h-[250px]">
-                  {selectedPolicy.content}
+                  {selectedPolicy.description}
                 </div>
 
                 {/* Acknowledgement trigger for employee */}

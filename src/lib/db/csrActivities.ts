@@ -1,7 +1,7 @@
 import { supabase } from '../supabase';
-import { CsrActivity, EmployeeParticipation } from '../types';
+import { CSRActivity, EmployeeParticipation } from '../types';
 
-export const getCsrActivities = async (): Promise<CsrActivity[]> => {
+export const getCsrActivities = async (): Promise<CSRActivity[]> => {
   const { data, error } = await supabase
     .from('csr_activities')
     .select(`
@@ -19,8 +19,8 @@ export const getCsrActivities = async (): Promise<CsrActivity[]> => {
 };
 
 export const createCsrActivity = async (
-  activity: Omit<CsrActivity, 'id' | 'created_at'>
-): Promise<CsrActivity> => {
+  activity: Omit<CSRActivity, 'id' | 'created_at'>
+): Promise<CSRActivity> => {
   const { data, error } = await supabase
     .from('csr_activities')
     .insert([activity])
@@ -33,8 +33,8 @@ export const createCsrActivity = async (
 
 export const updateCsrActivity = async (
   id: string,
-  activity: Partial<Omit<CsrActivity, 'id' | 'created_at'>>
-): Promise<CsrActivity> => {
+  activity: Partial<Omit<CSRActivity, 'id' | 'created_at'>>
+): Promise<CSRActivity> => {
   const { data, error } = await supabase
     .from('csr_activities')
     .update(activity)

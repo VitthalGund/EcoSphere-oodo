@@ -229,7 +229,7 @@ export const LeaderboardPage: React.FC = () => {
                               {u.department_name}
                             </td>
                             <td className="py-4 px-4 text-center font-bold text-text-primary">
-                              {u.badge_count > 0 ? (
+                              {(u.badge_count || 0) > 0 ? (
                                 <span className="inline-flex items-center space-x-0.5 text-warning bg-warning/5 px-2 py-0.5 rounded-full border border-warning/10 font-black">
                                   <Award className="h-3 w-3 fill-warning/10" />
                                   <span>{u.badge_count}</span>
@@ -376,7 +376,7 @@ export const LeaderboardPage: React.FC = () => {
                         tickLine={false}
                         width={60}
                       />
-                      <Tooltip formatter={(v) => `${v.toLocaleString()} XP`} />
+                      <Tooltip formatter={(v) => `${(v || 0).toLocaleString()} XP`} />
                       <Bar
                         dataKey="value"
                         fill="#f08c00"
@@ -423,7 +423,7 @@ export const LeaderboardPage: React.FC = () => {
                         tickLine={false}
                       />
                       <YAxis stroke="#495057" fontSize={9} tickLine={false} />
-                      <Tooltip formatter={(v) => `${v} ESG`} />
+                      <Tooltip formatter={(v) => `${v || 0} ESG`} />
                       <Bar
                         dataKey="value"
                         fill="#2f9e44"

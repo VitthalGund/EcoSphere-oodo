@@ -3,13 +3,13 @@ import { Card } from '../../components/Card';
 import { LoadingSpinner } from '../../components/LoadingSpinner';
 import { ErrorState } from '../../components/ErrorState';
 import { supabase } from '../../lib/supabase';
-import { DepartmentScore, ESGConfig } from '../../lib/types';
+import type { DepartmentScore, ESGConfig } from '../../lib/types';
 import { recalculateAllScores } from '../../lib/rules/scoreCalculator';
-import { 
-  PieChart, 
-  Pie, 
-  Cell, 
-  ResponsiveContainer 
+import {
+  PieChart,
+  Pie,
+  Cell,
+  ResponsiveContainer
 } from 'recharts';
 import { Scale, Leaf, Heart, Shield, Sparkles, TrendingUp, ChevronRight, BrainCircuit, X, MessageSquareQuote } from 'lucide-react';
 import { toast } from 'react-hot-toast';
@@ -21,7 +21,7 @@ export const DashboardPage: React.FC = () => {
   const [departmentScores, setDepartmentScores] = useState<(DepartmentScore & { department_name?: string })[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  
+
   // Selected gauge segment
   const [selectedPillar, setSelectedPillar] = useState<'env' | 'soc' | 'gov' | 'total'>('total');
 
@@ -56,7 +56,7 @@ export const DashboardPage: React.FC = () => {
         .from('esg_config')
         .select('*')
         .limit(1);
-      
+
       if (wData && wData.length > 0) {
         setWeights(wData[0]);
       } else {
@@ -80,7 +80,7 @@ export const DashboardPage: React.FC = () => {
         .not('department_id', 'is', null);
 
       if (deptErr) throw deptErr;
-      
+
       const mappedDepts = (deptData || []).map((item: any) => ({
         ...item,
         department_name: item.departments?.name || 'Unknown Department'
@@ -201,7 +201,7 @@ Format in clean bullet points where appropriate. Use concise corporate language.
 
   return (
     <div className="space-y-6">
-      
+
       {/* Upper overview bar */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0 text-left">
         <div>
@@ -211,7 +211,7 @@ Format in clean bullet points where appropriate. Use concise corporate language.
           </h2>
           <p className="text-xs text-text-secondary mt-1">Real-time aggregate performance index of Environmental, Social, and Governance pillars.</p>
         </div>
-        
+
         <div className="flex items-center space-x-3">
           <button
             onClick={askEsgCopilot}
@@ -232,16 +232,16 @@ Format in clean bullet points where appropriate. Use concise corporate language.
 
       {/* Main centerpiece split */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        
+
         {/* Left 2 cols: Centerpiece Donut Gauge */}
         <div className="lg:col-span-2">
-          <Card 
-            title="Composite ESG Donut Gauge" 
+          <Card
+            title="Composite ESG Donut Gauge"
             subtitle="Click on segments (Env, Soc, Gov) to inspect weighted indexes."
             accent="primary"
           >
             <div className="flex flex-col md:flex-row items-center justify-around py-6">
-              
+
               {/* Donut graphic */}
               <div className="h-64 w-64 relative shrink-0">
                 <ResponsiveContainer width="100%" height="100%">
@@ -258,9 +258,9 @@ Format in clean bullet points where appropriate. Use concise corporate language.
                       className="cursor-pointer"
                     >
                       {donutData.map((entry, index) => (
-                        <Cell 
-                          key={`cell-${index}`} 
-                          fill={entry.color} 
+                        <Cell
+                          key={`cell-${index}`}
+                          fill={entry.color}
                           opacity={selectedPillar === 'total' || selectedPillar === entry.key ? 1 : 0.4}
                           stroke={selectedPillar === entry.key ? '#fff' : 'none'}
                           strokeWidth={selectedPillar === entry.key ? 3 : 0}
@@ -281,17 +281,16 @@ Format in clean bullet points where appropriate. Use concise corporate language.
               {/* Legends & Details list */}
               <div className="space-y-4 md:w-72 mt-6 md:mt-0 text-left">
                 <h4 className="text-xs font-black text-text-secondary uppercase tracking-widest">ESG Weights Formula</h4>
-                
+
                 <div className="space-y-3">
                   {donutData.map((item) => (
-                    <div 
+                    <div
                       key={item.key}
                       onClick={() => setSelectedPillar(item.key as any)}
-                      className={`p-3 rounded-xl border cursor-pointer transition-all flex items-center justify-between ${
-                        selectedPillar === item.key 
-                          ? 'border-border bg-surface' 
+                      className={`p-3 rounded-xl border cursor-pointer transition-all flex items-center justify-between ${selectedPillar === item.key
+                          ? 'border-border bg-surface'
                           : 'border-transparent hover:bg-surface/50'
-                      }`}
+                        }`}
                     >
                       <div className="flex items-center space-x-2.5">
                         <span className="h-3 w-3 rounded-full" style={{ backgroundColor: item.color }}></span>
@@ -303,7 +302,7 @@ Format in clean bullet points where appropriate. Use concise corporate language.
                       <span className="font-black text-sm text-text-primary">{item.value}/100</span>
                     </div>
                   ))}
-                  
+
                   {/* Reset view */}
                   {selectedPillar !== 'total' && (
                     <button
@@ -322,8 +321,8 @@ Format in clean bullet points where appropriate. Use concise corporate language.
 
         {/* Right 1 col: Dynamic inspector card */}
         <div>
-          <Card 
-            title={selectedPillar === 'total' ? 'Organization Summary' : `${selectedPillar === 'env' ? 'Environmental' : selectedPillar === 'soc' ? 'Social' : 'Governance'} Inspection`} 
+          <Card
+            title={selectedPillar === 'total' ? 'Organization Summary' : `${selectedPillar === 'env' ? 'Environmental' : selectedPillar === 'soc' ? 'Social' : 'Governance'} Inspection`}
             subtitle="Details and formula aggregates."
             accent={selectedPillar === 'env' ? 'primary' : selectedPillar === 'soc' ? 'secondary' : selectedPillar === 'gov' ? 'gamification' : undefined}
           >
@@ -332,7 +331,7 @@ Format in clean bullet points where appropriate. Use concise corporate language.
                 <div className="bg-surface/40 p-3 rounded-lg border border-border">
                   <p className="font-bold text-text-primary">Calculation Formula:</p>
                   <p className="text-text-secondary mt-1">
-                    $$\text{Score} = \frac{\text{Env} \times {envW} + \text{Soc} \times {socW} + \text{Gov} \times {govW}}{100}$$
+                    {"$$\\text{Score} = \\frac{\\text{Env} \\times " + envW + " + \\text{Soc} \\times " + socW + " + \\text{Gov} \\times " + govW + "}{100}$$"}
                   </p>
                 </div>
 
@@ -374,7 +373,7 @@ Format in clean bullet points where appropriate. Use concise corporate language.
                     </p>
                   </div>
                 </div>
-                
+
                 <div className="space-y-2">
                   <p className="font-bold text-text-secondary uppercase text-[10px] tracking-wider">How to improve:</p>
                   <ul className="list-disc pl-4 space-y-1.5 text-text-secondary">
@@ -460,7 +459,7 @@ Format in clean bullet points where appropriate. Use concise corporate language.
 
       {/* Benchmarks grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        
+
         {/* Department Rankings */}
         <Card title="Department Leaderboard" subtitle="Benchmarking aggregate scores per department.">
           {departmentScores.length === 0 ? (
@@ -472,7 +471,7 @@ Format in clean bullet points where appropriate. Use concise corporate language.
               {departmentScores.slice(0, 4).map((dept, idx) => (
                 <div key={dept.id} className="flex items-center justify-between border-b border-border/40 pb-2.5 last:border-0 last:pb-0 text-left text-xs">
                   <div className="flex items-center space-x-3">
-                    <span className="font-black text-text-secondary/50 w-4">#{idx+1}</span>
+                    <span className="font-black text-text-secondary/50 w-4">#{idx + 1}</span>
                     <span className="font-bold text-text-primary">{dept.department_name}</span>
                   </div>
                   <span className="font-black text-primary bg-primary/5 px-2 py-0.5 rounded border border-primary/10">
@@ -526,7 +525,7 @@ Format in clean bullet points where appropriate. Use concise corporate language.
 
             {/* Chat Body */}
             <div className="flex-1 p-5 overflow-y-auto space-y-4 text-xs text-left">
-              
+
               {/* Question bubble */}
               <div className="flex items-start space-x-2.5 justify-end">
                 <div className="bg-primary/10 text-primary border border-primary/10 p-3 rounded-xl max-w-xs font-semibold leading-relaxed">

@@ -144,6 +144,8 @@ export interface EmployeeParticipation {
   // Joined
   employee_name?: string;
   activity_title?: string;
+  activity_date?: string;
+  volunteering_hours?: number;
 }
 
 export interface Challenge {

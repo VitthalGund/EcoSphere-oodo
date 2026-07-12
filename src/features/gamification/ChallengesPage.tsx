@@ -16,6 +16,7 @@ import {
   Sparkles,
   ShieldAlert,
   Award,
+  X,
 } from "lucide-react";
 import { useAuth } from "../auth/AuthContext";
 import { Link } from "react-router-dom";

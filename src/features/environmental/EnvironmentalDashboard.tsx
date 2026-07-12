@@ -459,7 +459,7 @@ export const EnvironmentalDashboard: React.FC = () => {
                         ))}
                       </Pie>
                       <Tooltip
-                        formatter={(value) => `${value.toLocaleString()} kg`}
+                        formatter={(value) => `${(value || 0).toLocaleString()} kg`}
                       />
                     </PieChart>
                   </ResponsiveContainer>
@@ -531,7 +531,7 @@ export const EnvironmentalDashboard: React.FC = () => {
                       tickLine={false}
                       width={80}
                     />
-                    <Tooltip formatter={(v) => `${v.toLocaleString()} kg`} />
+                    <Tooltip formatter={(v) => `${(v || 0).toLocaleString()} kg`} />
                     <Bar
                       dataKey="value"
                       fill="#2f9e44"

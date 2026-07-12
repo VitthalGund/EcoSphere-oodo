@@ -1,7 +1,7 @@
 import { supabase } from '../supabase';
-import { EsgPolicy, PolicyAcknowledgement } from '../types';
+import { ESGPolicy, PolicyAcknowledgement } from '../types';
 
-export const getPolicies = async (): Promise<EsgPolicy[]> => {
+export const getPolicies = async (): Promise<ESGPolicy[]> => {
   const { data, error } = await supabase
     .from('esg_policies')
     .select('*')
@@ -12,8 +12,8 @@ export const getPolicies = async (): Promise<EsgPolicy[]> => {
 };
 
 export const createPolicy = async (
-  policy: Omit<EsgPolicy, 'id' | 'created_at'>
-): Promise<EsgPolicy> => {
+  policy: Omit<ESGPolicy, 'id' | 'created_at'>
+): Promise<ESGPolicy> => {
   const { data, error } = await supabase
     .from('esg_policies')
     .insert([policy])
@@ -26,8 +26,8 @@ export const createPolicy = async (
 
 export const updatePolicy = async (
   id: string,
-  policy: Partial<Omit<EsgPolicy, 'id' | 'created_at'>>
-): Promise<EsgPolicy> => {
+  policy: Partial<Omit<ESGPolicy, 'id' | 'created_at'>>
+): Promise<ESGPolicy> => {
   const { data, error } = await supabase
     .from('esg_policies')
     .update(policy)

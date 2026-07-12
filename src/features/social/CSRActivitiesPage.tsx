@@ -12,7 +12,7 @@ import {
 } from '../../lib/db/csrActivities';
 import { getCategories } from '../../lib/db/categories';
 import { recalculateAllScores } from '../../lib/rules/scoreCalculator';
-import { CsrActivity, Category, EmployeeParticipation } from '../../lib/types';
+import { CSRActivity, Category, EmployeeParticipation } from '../../lib/types';
 import { toast } from 'react-hot-toast';
 import { Plus, Search, Heart, Calendar, Users, X, Clock, HelpCircle, UserPlus, Eye } from 'lucide-react';
 import { useAuth } from '../auth/AuthContext';
@@ -20,7 +20,7 @@ import { Link } from 'react-router-dom';
 
 export const CSRActivitiesPage: React.FC = () => {
   const { profile } = useAuth();
-  const [activities, setActivities] = useState<CsrActivity[]>([]);
+  const [activities, setActivities] = useState<CSRActivity[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [myParticipations, setMyParticipations] = useState<EmployeeParticipation[]>([]);
   const [loading, setLoading] = useState(true);
@@ -59,7 +59,7 @@ export const CSRActivitiesPage: React.FC = () => {
         getCategories()
       ]);
       setActivities(activitiesData);
-      setCategories(categoriesData.filter(c => c.status === 'active' && c.type === 'csr'));
+      setCategories(categoriesData.filter(c => c.status === 'active' && c.type === 'csr_activity'));
 
       if (profile) {
         const partsData = await getCsrParticipations({ employeeId: profile.id });
@@ -96,13 +96,10 @@ export const CSRActivitiesPage: React.FC = () => {
 
     const payload = {
       title,
-      description,
+      description: `${description}\n\n📍 Location: ${location}\n👥 Limit: ${maxParticipants} volunteers`,
       category_id: categoryId,
-      location,
+      department_id: profile?.department_id || '',
       date,
-      max_participants: Number(maxParticipants),
-      status: 'active' as any,
-      created_by: profile?.id || ''
     };
 
     try {
@@ -160,7 +157,7 @@ export const CSRActivitiesPage: React.FC = () => {
   const filteredActivities = activities.filter(act => {
     const matchesSearch = 
       act.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
-      act.location.toLowerCase().includes(searchTerm.toLowerCase());
+      act.description.toLowerCase().includes(searchTerm.toLowerCase());
     
     const matchesCat = catFilter === 'all' || act.category_id === catFilter;
     
@@ -258,13 +255,13 @@ export const CSRActivitiesPage: React.FC = () => {
                       <span className="text-[10px] font-black uppercase bg-[#1971c2]/10 text-[#1971c2] border border-[#1971c2]/10 px-2 py-0.5 rounded">
                         {act.category_name}
                       </span>
-                      <StatusBadge status={act.status} className="text-[9px]" />
+                      <StatusBadge status="active" className="text-[9px]" />
                     </div>
 
                     {/* Header Info */}
                     <div className="text-left space-y-1">
                       <h3 className="text-base font-extrabold text-text-primary m-0 tracking-tight leading-tight">{act.title}</h3>
-                      <p className="text-[10px] text-text-secondary/70 font-semibold">{act.location}</p>
+                      <p className="text-[10px] text-text-secondary/70 font-semibold">{act.department_name || 'Organization'}</p>
                       <p className="text-xs text-text-secondary/80 line-clamp-3 leading-relaxed mt-2">{act.description}</p>
                     </div>
                   </div>
@@ -274,10 +271,6 @@ export const CSRActivitiesPage: React.FC = () => {
                       <div className="flex items-center space-x-1">
                         <Calendar className="h-4 w-4 text-[#1971c2]" />
                         <span>{act.date}</span>
-                      </div>
-                      <div className="flex items-center space-x-1">
-                        <Users className="h-4 w-4 text-[#1971c2]" />
-                        <span>Max: {act.max_participants}</span>
                       </div>
                     </div>
 
@@ -297,12 +290,12 @@ export const CSRActivitiesPage: React.FC = () => {
                           <div className="space-y-2 text-left">
                             <div className="flex items-center justify-between bg-governance/5 p-2 rounded-lg border border-governance/10 text-[11px] text-governance font-bold">
                               <span>Registered</span>
-                              <span>Hours: {part.volunteering_hours} hrs</span>
+                              <span>Hours: {part.volunteering_hours || 0} hrs</span>
                             </div>
                             
                             {part.approval_status !== 'approved' && (
                               <button
-                                onClick={() => openHoursModal(part.id, part.volunteering_hours)}
+                                onClick={() => openHoursModal(part.id, part.volunteering_hours || 0)}
                                 className="w-full inline-flex items-center justify-center space-x-1 py-1.5 px-2 border border-border hover:bg-surface rounded-lg text-text-primary font-bold text-[11px] transition-all"
                               >
                                 <Clock className="h-3.5 w-3.5" />

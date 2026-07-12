@@ -30,6 +30,7 @@ import {
   AlertTriangle,
   ArrowRight,
   BrainCircuit,
+  Check,
 } from "lucide-react";
 import { useAuth } from "../auth/AuthContext";
 

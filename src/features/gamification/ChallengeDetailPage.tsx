@@ -316,7 +316,7 @@ export const ChallengeDetailPage: React.FC = () => {
                     accent="gamification"
                   >
                     <form
-                      onSubmit={handleFormSubmit}
+                      onSubmit={handleProofSubmit}
                       className="space-y-4 text-left"
                     >
                       <div>
