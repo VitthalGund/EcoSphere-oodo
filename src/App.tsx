@@ -4,6 +4,7 @@ import { AuthProvider, ProtectedRoute } from './features/auth/AuthContext';
 import { LoginPage } from './features/auth/LoginPage';
 import { Layout } from './components/Layout';
 import { PlaceholderPage } from './pages/PlaceholderPage';
+import { DashboardPage } from './features/dashboard/DashboardPage';
 
 // Phase 2 real page imports
 import { DepartmentsPage } from './features/settings/DepartmentsPage';
@@ -37,7 +38,7 @@ function App() {
             element={
               <ProtectedRoute>
                 <Layout>
-                  <PlaceholderPage title="Dashboard Center" />
+                  <DashboardPage />
                 </Layout>
               </ProtectedRoute>
             }

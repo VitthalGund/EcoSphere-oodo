@@ -4,7 +4,7 @@
 working log, not documentation.*
 
 ## Current phase
-**Phase 4 Completed — Gamification features (Challenges catalog, Detail participation, atomic Rewards Store redemption, Leaderboards, and dynamic Badge Rules Evaluator) are fully functional. Ready for Phase 5: ESG Score Gauge Centerpiece.**
+**Phase 5 Completed — ESG Score Gauge Centerpiece (weighted centerpiece donut gauge with dynamic segment inspection and active ESG index calculations) is fully functional. Ready for Phase 6: AI Emission Classifier.**
 
 ## Done
 - [x] PS selected: EcoSphere (over TransitOps, AssetFlow) — see `research/EcoSphere_Deep_Dive_Research.md`
@@ -15,12 +15,12 @@ working log, not documentation.*
 - [x] Phase 2: Master Data CRUD (Database query wrappers and interactive form dashboards for Departments, Categories, Emission Factors, and ESG weights)
 - [x] Phase 3: Environmental Pillar (Carbon Ledger CRUD, auto-calculated CO₂e, Environmental Dashboard with Recharts timeline/scope/benchmarks, and dynamic scores engine)
 - [x] Phase 4: Gamification (Challenges catalog, enrollments, proof submissions, atomic RPC reward claims, XP leaderboards, and generic Badge rule evaluation)
+- [x] Phase 5: ESG Score Gauge (weighted centerpiece donut chart with segment-click inspector on Home Dashboard)
 
 ## In Progress
-- [ ] Phase 5: ESG Score Gauge (weighted centerpiece donut chart)
+- [ ] Phase 6: AI Emission Classifier
 
 ## Not Started (in build order — see `ai-workflow-rules.md`)
-- [ ] Phase 6: AI Emission Classifier
 - [ ] Phase 7: Shallow Social + Governance CRUD
 - [ ] Phase 8: Stretch features (Score Copilot → NL Report Builder → Recommender → Vision Check)
 
@@ -31,10 +31,11 @@ working log, not documentation.*
 *(none yet)*
 
 ## Next steps
-1. Build the dashboard centerpiece gauge using Recharts `PieChart` structured as a multi-segment donut gauge.
-2. Animate the centerpiece gauge segments and make them clickable to reveal underlying metrics.
-3. Integrate the active ESG score computation to pull real department and org-wide totals.
-4. Display the composite indicator (e.g. A, B, C grade) dynamically on the home page.
+1. Setup a local mock / Edge Function stub executing semantic matching or Gemini API simulation for classifying purchase descriptions.
+2. Build an "AI Assist" import/classification popup on the Carbon Transactions page.
+3. Accept raw strings like "Purchased 300 liters of gasoline" and parse them into factor matches (Gasoline factor) and raw amounts (300).
+4. Provide a confirm step enabling the user to edit parsed fields before saving to the database ledger.
+
 
 
 
