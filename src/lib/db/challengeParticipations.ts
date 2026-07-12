@@ -1,28 +1,30 @@
-import { supabase } from '../supabase';
-import { ChallengeParticipation } from '../types';
+import { supabase } from "../supabase";
+import { ChallengeParticipation } from "../types";
 
 export const getChallengeParticipations = async (filters?: {
   challengeId?: string;
   employeeId?: string;
-  approvalStatus?: ChallengeParticipation['approval_status'];
+  approvalStatus?: ChallengeParticipation["approval_status"];
 }): Promise<ChallengeParticipation[]> => {
   let query = supabase
-    .from('challenge_participations')
-    .select(`
+    .from("challenge_participations")
+    .select(
+      `
       *,
       challenges:challenge_id(title, xp, difficulty),
       users:employee_id(name)
-    `)
-    .order('created_at', { ascending: false });
+    `,
+    )
+    .order("created_at", { ascending: false });
 
   if (filters?.challengeId) {
-    query = query.eq('challenge_id', filters.challengeId);
+    query = query.eq("challenge_id", filters.challengeId);
   }
   if (filters?.employeeId) {
-    query = query.eq('employee_id', filters.employeeId);
+    query = query.eq("employee_id", filters.employeeId);
   }
   if (filters?.approvalStatus) {
-    query = query.eq('approval_status', filters.approvalStatus);
+    query = query.eq("approval_status", filters.approvalStatus);
   }
 
   const { data, error } = await query;
@@ -30,25 +32,27 @@ export const getChallengeParticipations = async (filters?: {
 
   return (data || []).map((item: any) => ({
     ...item,
-    challenge_title: item.challenges?.title || 'Unknown Challenge',
+    challenge_title: item.challenges?.title || "Unknown Challenge",
     challenge_xp: item.challenges?.xp || 0,
-    challenge_difficulty: item.challenges?.difficulty || 'Medium',
-    employee_name: item.users?.name || 'Unknown Employee'
+    challenge_difficulty: item.challenges?.difficulty || "Medium",
+    employee_name: item.users?.name || "Unknown Employee",
   }));
 };
 
 export const joinChallenge = async (
   challengeId: string,
-  employeeId: string
+  employeeId: string,
 ): Promise<ChallengeParticipation> => {
   const { data, error } = await supabase
-    .from('challenge_participations')
-    .insert([{
-      challenge_id: challengeId,
-      employee_id: employeeId,
-      progress: 0,
-      approval_status: 'pending'
-    }])
+    .from("challenge_participations")
+    .insert([
+      {
+        challenge_id: challengeId,
+        employee_id: employeeId,
+        progress: 0,
+        approval_status: "pending",
+      },
+    ])
     .select()
     .single();
 
@@ -58,15 +62,15 @@ export const joinChallenge = async (
 
 export const submitChallengeProof = async (
   participationId: string,
-  proofUrl: string
+  proofUrl: string,
 ): Promise<ChallengeParticipation> => {
   const { data, error } = await supabase
-    .from('challenge_participations')
+    .from("challenge_participations")
     .update({
       proof_url: proofUrl,
-      progress: 100
+      progress: 100,
     })
-    .eq('id', participationId)
+    .eq("id", participationId)
     .select()
     .single();
 
@@ -79,25 +83,25 @@ export const approveChallengeParticipation = async (
   challengeId: string,
   employeeId: string,
   xpAwarded: number,
-  approverId: string
+  approverId: string,
 ): Promise<{ success: boolean; newXp: number; newLevel: number }> => {
   // 1. Update the participation approval status
   const { error: pError } = await supabase
-    .from('challenge_participations')
+    .from("challenge_participations")
     .update({
-      approval_status: 'approved',
+      approval_status: "approved",
       xp_awarded: xpAwarded,
-      approved_by: approverId
+      approved_by: approverId,
     })
-    .eq('id', participationId);
+    .eq("id", participationId);
 
   if (pError) throw pError;
 
   // 2. Fetch employee's current points/XP to adjust
   const { data: userProfile, error: uFetchError } = await supabase
-    .from('users')
-    .select('xp, points_balance')
-    .eq('id', employeeId)
+    .from("users")
+    .select("xp, points_balance")
+    .eq("id", employeeId)
     .single();
 
   if (uFetchError) throw uFetchError;
@@ -108,13 +112,13 @@ export const approveChallengeParticipation = async (
 
   // 3. Update the employee's profile
   const { error: uUpdateError } = await supabase
-    .from('users')
+    .from("users")
     .update({
       xp: newXp,
       points_balance: newPoints,
-      level: newLevel
+      level: newLevel,
     })
-    .eq('id', employeeId);
+    .eq("id", employeeId);
 
   if (uUpdateError) throw uUpdateError;
 
@@ -123,15 +127,15 @@ export const approveChallengeParticipation = async (
 
 export const rejectChallengeParticipation = async (
   participationId: string,
-  approverId: string
+  approverId: string,
 ): Promise<ChallengeParticipation> => {
   const { data, error } = await supabase
-    .from('challenge_participations')
+    .from("challenge_participations")
     .update({
-      approval_status: 'rejected',
-      approved_by: approverId
+      approval_status: "rejected",
+      approved_by: approverId,
     })
-    .eq('id', participationId)
+    .eq("id", participationId)
     .select()
     .single();
 

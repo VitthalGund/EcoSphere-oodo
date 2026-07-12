@@ -1,7 +1,7 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
-import { User } from '@supabase/supabase-js';
-import { supabase } from '../../lib/supabase';
-import { UserProfile, UserRole } from '../../lib/types';
+import React, { createContext, useContext, useEffect, useState } from "react";
+import { User } from "@supabase/supabase-js";
+import { supabase } from "../../lib/supabase";
+import { UserProfile, UserRole } from "../../lib/types";
 
 interface AuthContextType {
   user: User | null;
@@ -17,7 +17,9 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
@@ -25,19 +27,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const fetchProfile = async (userId: string) => {
     try {
       const { data, error } = await supabase
-        .from('users')
-        .select('*')
-        .eq('id', userId)
+        .from("users")
+        .select("*")
+        .eq("id", userId)
         .single();
 
       if (error) {
-        console.error('Error fetching user profile:', error.message);
+        console.error("Error fetching user profile:", error.message);
         setProfile(null);
       } else {
         setProfile(data as UserProfile);
       }
     } catch (err) {
-      console.error('Failed to fetch profile:', err);
+      console.error("Failed to fetch profile:", err);
       setProfile(null);
     }
   };
@@ -62,7 +64,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     });
 
     // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(async (_event, session) => {
       const currentUser = session?.user ?? null;
       setUser(currentUser);
       if (currentUser) {
@@ -101,9 +105,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const isAdmin = profile?.role === 'admin';
-  const isDepartmentHead = profile?.role === 'department_head';
-  const isEmployee = profile?.role === 'employee';
+  const isAdmin = profile?.role === "admin";
+  const isDepartmentHead = profile?.role === "department_head";
+  const isEmployee = profile?.role === "employee";
 
   return (
     <AuthContext.Provider
@@ -127,7 +131,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 };

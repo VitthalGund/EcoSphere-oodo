@@ -1,4 +1,4 @@
-export type UserRole = 'admin' | 'department_head' | 'employee';
+export type UserRole = "admin" | "department_head" | "employee";
 
 export interface Department {
   id: string;
@@ -7,15 +7,15 @@ export interface Department {
   head_id: string | null;
   parent_department_id: string | null;
   employee_count: number;
-  status: 'active' | 'inactive';
+  status: "active" | "inactive";
   created_at?: string;
 }
 
 export interface Category {
   id: string;
   name: string;
-  type: 'csr_activity' | 'challenge';
-  status: 'active' | 'inactive';
+  type: "csr_activity" | "challenge";
+  status: "active" | "inactive";
   created_at?: string;
 }
 
@@ -42,7 +42,7 @@ export interface EnvironmentalGoal {
   target_metric: string;
   target_value: number;
   deadline: string;
-  status: 'active' | 'completed' | 'missed';
+  status: "active" | "completed" | "missed";
   created_at?: string;
 }
 
@@ -51,15 +51,19 @@ export interface ESGPolicy {
   title: string;
   description: string;
   version: string;
-  status: 'draft' | 'published';
+  status: "draft" | "published";
   created_at?: string;
   published_at?: string | null;
 }
 
 export interface BadgeUnlockRule {
-  type: 'threshold';
-  metric: 'xp' | 'challenges_completed' | 'carbon_transactions_logged' | 'csr_activities_completed';
-  operator: '>=' | '>' | '==' | '<=';
+  type: "threshold";
+  metric:
+    | "xp"
+    | "challenges_completed"
+    | "carbon_transactions_logged"
+    | "csr_activities_completed";
+  operator: ">=" | ">" | "==" | "<=";
   value: number;
 }
 
@@ -78,7 +82,7 @@ export interface Reward {
   description: string;
   points_required: number;
   stock: number;
-  status: 'active' | 'inactive';
+  status: "active" | "inactive";
   created_at?: string;
 }
 
@@ -104,7 +108,7 @@ export interface CarbonTransaction {
   amount: number;
   co2e: number;
   date: string;
-  created_via: 'manual' | 'ai_classifier';
+  created_via: "manual" | "ai_classifier";
   created_by: string;
   created_at?: string;
   // Joined fields
@@ -132,7 +136,7 @@ export interface EmployeeParticipation {
   employee_id: string;
   activity_id: string;
   proof_url: string | null;
-  approval_status: 'pending' | 'approved' | 'rejected';
+  approval_status: "pending" | "approved" | "rejected";
   points_earned: number;
   completion_date: string | null;
   approved_by: string | null;
@@ -148,10 +152,10 @@ export interface Challenge {
   category_id: string;
   description: string;
   xp: number;
-  difficulty: 'Easy' | 'Medium' | 'Hard';
+  difficulty: "Easy" | "Medium" | "Hard";
   evidence_required: boolean;
   deadline: string;
-  status: 'draft' | 'active' | 'under_review' | 'completed' | 'archived';
+  status: "draft" | "active" | "under_review" | "completed" | "archived";
   created_by: string;
   created_at?: string;
   // Joined
@@ -165,7 +169,7 @@ export interface ChallengeParticipation {
   employee_id: string;
   progress: number; // 0 to 100
   proof_url: string | null;
-  approval_status: 'pending' | 'approved' | 'rejected';
+  approval_status: "pending" | "approved" | "rejected";
   xp_awarded: number;
   approved_by: string | null;
   created_at?: string;
@@ -190,18 +194,18 @@ export interface Audit {
   id: string;
   scope: string;
   date_range: string;
-  status: 'draft' | 'completed' | 'archived';
+  status: "draft" | "completed" | "archived";
   created_at?: string;
 }
 
 export interface ComplianceIssue {
   id: string;
   audit_id: string | null;
-  severity: 'low' | 'medium' | 'high' | 'critical';
+  severity: "low" | "medium" | "high" | "critical";
   description: string;
   owner_id: string;
   due_date: string;
-  status: 'open' | 'resolved' | 'overdue';
+  status: "open" | "resolved" | "overdue";
   created_at?: string;
   // Joined
   owner_name?: string;

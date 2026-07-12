@@ -1,6 +1,6 @@
-import React from 'react';
-import { useAuth } from './AuthContext';
-import { UserRole } from '../../lib/types';
+import React from "react";
+import { useAuth } from "./AuthContext";
+import { UserRole } from "../../lib/types";
 
 interface RoleGateProps {
   children: React.ReactNode;
@@ -8,7 +8,11 @@ interface RoleGateProps {
   fallback?: React.ReactNode;
 }
 
-export const RoleGate: React.FC<RoleGateProps> = ({ children, roles, fallback = null }) => {
+export const RoleGate: React.FC<RoleGateProps> = ({
+  children,
+  roles,
+  fallback = null,
+}) => {
   const { profile } = useAuth();
 
   if (!profile || !roles.includes(profile.role)) {

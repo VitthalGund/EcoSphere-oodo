@@ -1,15 +1,24 @@
-import React, { useEffect, useState } from 'react';
-import { Card } from '../../components/Card';
-import { StatusBadge } from '../../components/StatusBadge';
-import { LoadingSpinner } from '../../components/LoadingSpinner';
-import { ErrorState } from '../../components/ErrorState';
-import { getChallenges, createChallenge } from '../../lib/db/challenges';
-import { getCategories } from '../../lib/db/categories';
-import { Challenge, Category } from '../../lib/types';
-import { toast } from 'react-hot-toast';
-import { Plus, Search, Trophy, Calendar, Eye, Sparkles, ShieldAlert, Award } from 'lucide-react';
-import { useAuth } from '../auth/AuthContext';
-import { Link } from 'react-router-dom';
+import React, { useEffect, useState } from "react";
+import { Card } from "../../components/Card";
+import { StatusBadge } from "../../components/StatusBadge";
+import { LoadingSpinner } from "../../components/LoadingSpinner";
+import { ErrorState } from "../../components/ErrorState";
+import { getChallenges, createChallenge } from "../../lib/db/challenges";
+import { getCategories } from "../../lib/db/categories";
+import { Challenge, Category } from "../../lib/types";
+import { toast } from "react-hot-toast";
+import {
+  Plus,
+  Search,
+  Trophy,
+  Calendar,
+  Eye,
+  Sparkles,
+  ShieldAlert,
+  Award,
+} from "lucide-react";
+import { useAuth } from "../auth/AuthContext";
+import { Link } from "react-router-dom";
 
 export const ChallengesPage: React.FC = () => {
   const { profile } = useAuth();
@@ -19,23 +28,29 @@ export const ChallengesPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
 
   // Filters
-  const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'draft' | 'under_review' | 'completed'>('active');
-  const [difficultyFilter, setDifficultyFilter] = useState<'all' | 'Easy' | 'Medium' | 'Hard'>('all');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState<
+    "all" | "active" | "draft" | "under_review" | "completed"
+  >("active");
+  const [difficultyFilter, setDifficultyFilter] = useState<
+    "all" | "Easy" | "Medium" | "Hard"
+  >("all");
 
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
-  
-  // Form Fields
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [categoryId, setCategoryId] = useState('');
-  const [xp, setXp] = useState<number>(100);
-  const [difficulty, setDifficulty] = useState<'Easy' | 'Medium' | 'Hard'>('Medium');
-  const [evidenceRequired, setEvidenceRequired] = useState(true);
-  const [deadline, setDeadline] = useState('');
 
-  const isAdmin = profile?.role === 'admin';
+  // Form Fields
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [categoryId, setCategoryId] = useState("");
+  const [xp, setXp] = useState<number>(100);
+  const [difficulty, setDifficulty] = useState<"Easy" | "Medium" | "Hard">(
+    "Medium",
+  );
+  const [evidenceRequired, setEvidenceRequired] = useState(true);
+  const [deadline, setDeadline] = useState("");
+
+  const isAdmin = profile?.role === "admin";
 
   const loadData = async () => {
     try {
@@ -43,13 +58,17 @@ export const ChallengesPage: React.FC = () => {
       setError(null);
       const [challengesData, categoriesData] = await Promise.all([
         getChallenges(),
-        getCategories()
+        getCategories(),
       ]);
       setChallenges(challengesData);
-      setCategories(categoriesData.filter(c => c.status === 'active' && c.type === 'challenge'));
+      setCategories(
+        categoriesData.filter(
+          (c) => c.status === "active" && c.type === "challenge",
+        ),
+      );
     } catch (err: any) {
       console.error(err);
-      setError(err.message || 'Failed to load challenges.');
+      setError(err.message || "Failed to load challenges.");
     } finally {
       setLoading(false);
     }
@@ -60,20 +79,24 @@ export const ChallengesPage: React.FC = () => {
   }, []);
 
   const openCreateModal = () => {
-    setTitle('');
-    setDescription('');
-    setCategoryId('');
+    setTitle("");
+    setDescription("");
+    setCategoryId("");
     setXp(150);
-    setDifficulty('Medium');
+    setDifficulty("Medium");
     setEvidenceRequired(true);
-    setDeadline(new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]); // Default 7 days from now
+    setDeadline(
+      new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+        .toISOString()
+        .split("T")[0],
+    ); // Default 7 days from now
     setIsModalOpen(true);
   };
 
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!title || !description || !categoryId || xp <= 0 || !deadline) {
-      toast.error('Please enter all required fields.');
+      toast.error("Please enter all required fields.");
       return;
     }
 
@@ -85,41 +108,46 @@ export const ChallengesPage: React.FC = () => {
       difficulty,
       evidence_required: evidenceRequired,
       deadline,
-      status: 'active' as any, // Auto-publish for hackathon ease
-      created_by: profile?.id || ''
+      status: "active" as any, // Auto-publish for hackathon ease
+      created_by: profile?.id || "",
     };
 
     try {
       await createChallenge(payload);
-      toast.success('Challenge created and published successfully!');
+      toast.success("Challenge created and published successfully!");
       setIsModalOpen(false);
       loadData();
     } catch (err: any) {
       console.error(err);
-      toast.error(err.message || 'Failed to create challenge.');
+      toast.error(err.message || "Failed to create challenge.");
     }
   };
 
-  const getDifficultyColor = (diff: Challenge['difficulty']) => {
+  const getDifficultyColor = (diff: Challenge["difficulty"]) => {
     switch (diff) {
-      case 'Easy': return 'bg-primary/10 text-primary border-primary/20';
-      case 'Medium': return 'bg-warning/10 text-warning border-warning/20';
-      case 'Hard': return 'bg-danger/10 text-danger border-danger/20';
+      case "Easy":
+        return "bg-primary/10 text-primary border-primary/20";
+      case "Medium":
+        return "bg-warning/10 text-warning border-warning/20";
+      case "Hard":
+        return "bg-danger/10 text-danger border-danger/20";
     }
   };
 
   // Client-side filters
-  const filteredChallenges = challenges.filter(c => {
-    const matchesSearch = 
-      c.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
+  const filteredChallenges = challenges.filter((c) => {
+    const matchesSearch =
+      c.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       c.description.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = statusFilter === 'all' || c.status === statusFilter;
-    const matchesDifficulty = difficultyFilter === 'all' || c.difficulty === difficultyFilter;
-    
+    const matchesStatus = statusFilter === "all" || c.status === statusFilter;
+    const matchesDifficulty =
+      difficultyFilter === "all" || c.difficulty === difficultyFilter;
+
     return matchesSearch && matchesStatus && matchesDifficulty;
   });
 
-  if (loading) return <LoadingSpinner message="Loading challenges catalog..." />;
+  if (loading)
+    return <LoadingSpinner message="Loading challenges catalog..." />;
   if (error) return <ErrorState message={error} onRetry={loadData} />;
 
   return (
@@ -128,10 +156,15 @@ export const ChallengesPage: React.FC = () => {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
         <div>
           <h2 className="text-2xl font-black text-text-primary m-0 tracking-tight flex items-center space-x-2">
-            <span className="text-[#f08c00]"><Trophy className="h-6 w-6" /></span>
+            <span className="text-[#f08c00]">
+              <Trophy className="h-6 w-6" />
+            </span>
             <span>Sustainability Challenges</span>
           </h2>
-          <p className="text-xs text-text-secondary mt-1">Participate in challenges, submit proof, and earn XP towards badge milestones.</p>
+          <p className="text-xs text-text-secondary mt-1">
+            Participate in challenges, submit proof, and earn XP towards badge
+            milestones.
+          </p>
         </div>
         {isAdmin && (
           <button
@@ -157,10 +190,12 @@ export const ChallengesPage: React.FC = () => {
             className="w-full pl-9 pr-4 py-2 border border-border rounded-lg bg-base text-xs text-text-primary placeholder:text-text-secondary/50 focus:outline-none focus:ring-1 focus:ring-primary focus:border-transparent transition-all"
           />
         </div>
-        
+
         {/* Difficulty Filter */}
         <div className="flex items-center space-x-2">
-          <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Difficulty:</label>
+          <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">
+            Difficulty:
+          </label>
           <select
             value={difficultyFilter}
             onChange={(e) => setDifficultyFilter(e.target.value as any)}
@@ -175,7 +210,9 @@ export const ChallengesPage: React.FC = () => {
 
         {/* Status Filter */}
         <div className="flex items-center space-x-2">
-          <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Status:</label>
+          <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">
+            Status:
+          </label>
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value as any)}
@@ -194,13 +231,15 @@ export const ChallengesPage: React.FC = () => {
       {filteredChallenges.length === 0 ? (
         <div className="text-center py-12 bg-base rounded-xl border border-border space-y-3">
           <div className="text-4xl text-text-secondary/30">🏆</div>
-          <p className="text-sm font-bold text-text-secondary">No challenges found matching filters.</p>
+          <p className="text-sm font-bold text-text-secondary">
+            No challenges found matching filters.
+          </p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredChallenges.map((c) => (
             <div key={c.id} className="flex flex-col h-full">
-              <Card 
+              <Card
                 accent="gamification"
                 className="flex-grow flex flex-col justify-between"
               >
@@ -210,15 +249,21 @@ export const ChallengesPage: React.FC = () => {
                     <span className="text-[10px] font-black uppercase bg-[#6741d9]/10 text-[#6741d9] border border-[#6741d9]/10 px-2 py-0.5 rounded">
                       {c.category_name}
                     </span>
-                    <span className={`text-[10px] font-bold border px-2 py-0.5 rounded ${getDifficultyColor(c.difficulty)}`}>
+                    <span
+                      className={`text-[10px] font-bold border px-2 py-0.5 rounded ${getDifficultyColor(c.difficulty)}`}
+                    >
                       {c.difficulty}
                     </span>
                   </div>
 
                   {/* Header info */}
                   <div className="text-left space-y-1">
-                    <h3 className="text-base font-extrabold text-text-primary m-0 tracking-tight leading-tight">{c.title}</h3>
-                    <p className="text-xs text-text-secondary/80 line-clamp-3 leading-relaxed mt-2">{c.description}</p>
+                    <h3 className="text-base font-extrabold text-text-primary m-0 tracking-tight leading-tight">
+                      {c.title}
+                    </h3>
+                    <p className="text-xs text-text-secondary/80 line-clamp-3 leading-relaxed mt-2">
+                      {c.description}
+                    </p>
                   </div>
                 </div>
 
@@ -226,9 +271,14 @@ export const ChallengesPage: React.FC = () => {
                   {/* XP Reward info */}
                   <div className="flex items-center space-x-1.5 text-[#f08c00]">
                     <Sparkles className="h-4 w-4 fill-[#f08c00]/15" />
-                    <span className="text-sm font-black tracking-wide">+{c.xp} <span className="text-[10px] font-medium text-text-secondary">XP</span></span>
+                    <span className="text-sm font-black tracking-wide">
+                      +{c.xp}{" "}
+                      <span className="text-[10px] font-medium text-text-secondary">
+                        XP
+                      </span>
+                    </span>
                   </div>
-                  
+
                   {/* Deadline info */}
                   <div className="flex items-center space-x-1 text-text-secondary text-[11px] font-semibold">
                     <Calendar className="h-3.5 w-3.5" />
@@ -270,7 +320,10 @@ export const ChallengesPage: React.FC = () => {
             </div>
 
             {/* Form */}
-            <form onSubmit={handleFormSubmit} className="p-5 space-y-4 text-left">
+            <form
+              onSubmit={handleFormSubmit}
+              className="p-5 space-y-4 text-left"
+            >
               <div>
                 <label className="block text-xs font-bold text-text-secondary uppercase tracking-wider mb-2">
                   Challenge Title*
@@ -311,8 +364,10 @@ export const ChallengesPage: React.FC = () => {
                     className="w-full px-3 py-2 border border-border rounded-lg bg-base text-xs text-text-primary focus:outline-none focus:ring-1"
                   >
                     <option value="">-- Select --</option>
-                    {categories.map(c => (
-                      <option key={c.id} value={c.id}>{c.name}</option>
+                    {categories.map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.name}
+                      </option>
                     ))}
                   </select>
                 </div>
@@ -365,7 +420,9 @@ export const ChallengesPage: React.FC = () => {
                   <label className="text-xs font-bold text-text-primary uppercase tracking-wider">
                     Evidence Upload Required
                   </label>
-                  <p className="text-[10px] text-text-secondary">Requires users to upload image proof before approval.</p>
+                  <p className="text-[10px] text-text-secondary">
+                    Requires users to upload image proof before approval.
+                  </p>
                 </div>
                 <label className="relative inline-flex items-center cursor-pointer">
                   <input

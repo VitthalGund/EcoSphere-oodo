@@ -1,23 +1,23 @@
-import React, { useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { useAuth } from './AuthContext';
-import { toast } from 'react-hot-toast';
+import React, { useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { useAuth } from "./AuthContext";
+import { toast } from "react-hot-toast";
 
 export const LoginPage: React.FC = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const { signIn } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
   // Redirect target
-  const from = (location.state as any)?.from?.pathname || '/';
+  const from = (location.state as any)?.from?.pathname || "/";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !password) {
-      toast.error('Please enter both email and password.');
+      toast.error("Please enter both email and password.");
       return;
     }
 
@@ -25,10 +25,12 @@ export const LoginPage: React.FC = () => {
     const { error } = await signIn(email, password);
 
     if (error) {
-      toast.error(error.message || 'Failed to sign in. Please verify your credentials.');
+      toast.error(
+        error.message || "Failed to sign in. Please verify your credentials.",
+      );
       setLoading(false);
     } else {
-      toast.success('Successfully logged in!');
+      toast.success("Successfully logged in!");
       // Apply scale fade-out transition by introducing a tiny delay
       setTimeout(() => {
         navigate(from, { replace: true });
@@ -55,10 +57,13 @@ export const LoginPage: React.FC = () => {
         {/* Hero Content */}
         <div className="my-auto max-w-lg z-10 space-y-6">
           <h1 className="text-4xl font-extrabold leading-tight tracking-tight text-white m-0 text-left">
-            ESG data, employee action and gamified engagement — in one system of record.
+            ESG data, employee action and gamified engagement — in one system of
+            record.
           </h1>
           <p className="text-white/80 text-lg leading-relaxed text-left font-light">
-            EcoSphere turns carbon accounting and corporate social responsibility into a real-time, explainable workspace employees participate in every day.
+            EcoSphere turns carbon accounting and corporate social
+            responsibility into a real-time, explainable workspace employees
+            participate in every day.
           </p>
         </div>
 
@@ -67,15 +72,21 @@ export const LoginPage: React.FC = () => {
           <div className="grid grid-cols-3 gap-6 text-center divide-x divide-white/15">
             <div>
               <p className="text-2xl font-black text-white">482.6t</p>
-              <p className="text-xs text-white/70 font-medium uppercase tracking-wider mt-1">CO₂e Tracked</p>
+              <p className="text-xs text-white/70 font-medium uppercase tracking-wider mt-1">
+                CO₂e Tracked
+              </p>
             </div>
             <div>
               <p className="text-2xl font-black text-white">78/100</p>
-              <p className="text-xs text-white/70 font-medium uppercase tracking-wider mt-1">ESG Score</p>
+              <p className="text-xs text-white/70 font-medium uppercase tracking-wider mt-1">
+                ESG Score
+              </p>
             </div>
             <div>
               <p className="text-2xl font-black text-white">340+</p>
-              <p className="text-xs text-white/70 font-medium uppercase tracking-wider mt-1">Engaged Team</p>
+              <p className="text-xs text-white/70 font-medium uppercase tracking-wider mt-1">
+                Engaged Team
+              </p>
             </div>
           </div>
         </div>
@@ -87,11 +98,15 @@ export const LoginPage: React.FC = () => {
           {/* Logo mobile-only */}
           <div className="flex lg:hidden items-center justify-center space-x-2 mb-8">
             <span className="text-3xl">🌱</span>
-            <span className="text-2xl font-bold text-text-primary">EcoSphere</span>
+            <span className="text-2xl font-bold text-text-primary">
+              EcoSphere
+            </span>
           </div>
 
           <div className="text-center lg:text-left">
-            <h2 className="text-3xl font-extrabold text-text-primary tracking-tight">Sign In</h2>
+            <h2 className="text-3xl font-extrabold text-text-primary tracking-tight">
+              Sign In
+            </h2>
             <p className="mt-2 text-sm text-text-secondary">
               Access your department ESG scoreboard and rewards catalog
             </p>
@@ -100,7 +115,10 @@ export const LoginPage: React.FC = () => {
           <form onSubmit={handleSubmit} className="mt-8 space-y-6">
             <div className="space-y-4">
               <div>
-                <label htmlFor="email" className="block text-xs font-semibold uppercase tracking-wider text-text-secondary mb-2">
+                <label
+                  htmlFor="email"
+                  className="block text-xs font-semibold uppercase tracking-wider text-text-secondary mb-2"
+                >
                   Work Email Address
                 </label>
                 <input
@@ -119,10 +137,16 @@ export const LoginPage: React.FC = () => {
 
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <label htmlFor="password" className="block text-xs font-semibold uppercase tracking-wider text-text-secondary">
+                  <label
+                    htmlFor="password"
+                    className="block text-xs font-semibold uppercase tracking-wider text-text-secondary"
+                  >
                     Password
                   </label>
-                  <a href="#forgot" className="text-xs font-semibold text-governance hover:underline">
+                  <a
+                    href="#forgot"
+                    className="text-xs font-semibold text-governance hover:underline"
+                  >
                     Forgot password?
                   </a>
                 </div>
@@ -149,14 +173,29 @@ export const LoginPage: React.FC = () => {
               >
                 {loading ? (
                   <span className="flex items-center space-x-2">
-                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                    <svg
+                      className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      />
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      />
                     </svg>
                     <span>Authenticating...</span>
                   </span>
                 ) : (
-                  'Sign In'
+                  "Sign In"
                 )}
               </button>
             </div>
@@ -164,11 +203,43 @@ export const LoginPage: React.FC = () => {
 
           {/* Quick Demo Accounts Helper */}
           <div className="mt-8 pt-6 border-t border-border bg-surface/50 p-4 rounded-xl">
-            <h4 className="text-xs font-bold text-text-secondary uppercase tracking-widest mb-3">Quick demo accounts:</h4>
+            <h4 className="text-xs font-bold text-text-secondary uppercase tracking-widest mb-3">
+              Quick demo accounts:
+            </h4>
             <div className="space-y-2 text-xs text-text-secondary">
-              <p>🌱 <strong>Admin:</strong> <code className="bg-base border border-border px-1 py-0.5 rounded">priya@ecosphere.com</code> (pass: <code className="bg-base border border-border px-1 py-0.5 rounded">password123</code>)</p>
-              <p>👥 <strong>Dept Head:</strong> <code className="bg-base border border-border px-1 py-0.5 rounded">meera@ecosphere.com</code> (pass: <code className="bg-base border border-border px-1 py-0.5 rounded">password123</code>)</p>
-              <p>🏆 <strong>Employee:</strong> <code className="bg-base border border-border px-1 py-0.5 rounded">raj@ecosphere.com</code> (pass: <code className="bg-base border border-border px-1 py-0.5 rounded">password123</code>)</p>
+              <p>
+                🌱 <strong>Admin:</strong>{" "}
+                <code className="bg-base border border-border px-1 py-0.5 rounded">
+                  priya@ecosphere.com
+                </code>{" "}
+                (pass:{" "}
+                <code className="bg-base border border-border px-1 py-0.5 rounded">
+                  password123
+                </code>
+                )
+              </p>
+              <p>
+                👥 <strong>Dept Head:</strong>{" "}
+                <code className="bg-base border border-border px-1 py-0.5 rounded">
+                  meera@ecosphere.com
+                </code>{" "}
+                (pass:{" "}
+                <code className="bg-base border border-border px-1 py-0.5 rounded">
+                  password123
+                </code>
+                )
+              </p>
+              <p>
+                🏆 <strong>Employee:</strong>{" "}
+                <code className="bg-base border border-border px-1 py-0.5 rounded">
+                  raj@ecosphere.com
+                </code>{" "}
+                (pass:{" "}
+                <code className="bg-base border border-border px-1 py-0.5 rounded">
+                  password123
+                </code>
+                )
+              </p>
             </div>
           </div>
         </div>

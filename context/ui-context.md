@@ -3,6 +3,7 @@
 Source: `ecospher_-_8_hours.excalidraw` (v2 wireframe — single sidebar, refined shell)
 
 ## Layout shell
+
 - **Single left sidebar navigation** (not icon-rail + tree — the wireframe explicitly rejected the
   double-nav pattern used in an earlier draft). Sections with emoji icons, in this order:
   - 📊 Dashboard
@@ -18,6 +19,7 @@ Source: `ecospher_-_8_hours.excalidraw` (v2 wireframe — single sidebar, refine
 - Topbar persists across all screens; only the canvas area changes.
 
 ## Sign-in screen
+
 - Split layout: brand/story panel (left) + form (right)
 - Brand panel copy: "ESG data, employee action and gamified engagement — in one system of record."
 - Brand panel includes a **live stat strip** as social proof before login (e.g. "482.6t CO₂e
@@ -27,19 +29,20 @@ Source: `ecospher_-_8_hours.excalidraw` (v2 wireframe — single sidebar, refine
 - Fields: Work email, Password, Sign in button, Forgot password link
 
 ## Color palette (extracted from wireframe)
-| Role | Hex | Usage |
-|---|---|---|
+
+| Role                    | Hex       | Usage                                                      |
+| ----------------------- | --------- | ---------------------------------------------------------- |
 | Primary / Environmental | `#2f9e44` | Environmental pillar accent, primary CTAs, positive states |
-| Governance / links | `#1971c2` | Governance pillar accent, links, info states |
-| Warning / accent | `#e8590c` | Alerts, overdue badges, secondary accents |
-| Danger | `#e03131` | Overdue/rejected/error states |
-| Gamification accent | `#f08c00` | XP, badges, rewards, streak indicators |
-| Secondary accent | `#6741d9` | Gamification highlights, level-up moments |
-| Text (primary) | `#343a40` | Body text, headings |
-| Text (secondary) | `#495057` | Muted labels, captions |
-| Border/divider | `#dee2e6` | Card borders, dividers |
-| Surface (light) | `#f1f3f5` | Card backgrounds, subtle fills |
-| Base | `#ffffff` | Page background, card surfaces |
+| Governance / links      | `#1971c2` | Governance pillar accent, links, info states               |
+| Warning / accent        | `#e8590c` | Alerts, overdue badges, secondary accents                  |
+| Danger                  | `#e03131` | Overdue/rejected/error states                              |
+| Gamification accent     | `#f08c00` | XP, badges, rewards, streak indicators                     |
+| Secondary accent        | `#6741d9` | Gamification highlights, level-up moments                  |
+| Text (primary)          | `#343a40` | Body text, headings                                        |
+| Text (secondary)        | `#495057` | Muted labels, captions                                     |
+| Border/divider          | `#dee2e6` | Card borders, dividers                                     |
+| Surface (light)         | `#f1f3f5` | Card backgrounds, subtle fills                             |
+| Base                    | `#ffffff` | Page background, card surfaces                             |
 
 **Convention:** each ESG pillar keeps its own accent color consistently across nav, cards, charts,
 and badges — Environmental is always green, Governance always blue, Gamification always
@@ -47,6 +50,7 @@ orange/purple. This makes the dashboard scannable at a glance and is an easy vis
 about this" signal for judges.
 
 ## Dashboard screen
+
 - KPI stat cards top row (module counts: Environmental / Social / Governance / Gamification with
   inline counts as shown in sidebar)
 - **ESG Score Gauge** as the dashboard centerpiece — weighted, clickable segments per pillar
@@ -56,6 +60,7 @@ about this" signal for judges.
 - Quick actions: "+ New Challenge", "Log Carbon Transaction", "View Reports"
 
 ## Component conventions
+
 - Cards: white surface, `#dee2e6` border, rounded corners, subtle shadow — consistent card
   component reused across Dashboard/Environmental/Gamification screens
 - Status badges (Draft/Active/Under Review/Completed/Archived, Approved/Rejected/Pending): pill-
@@ -68,11 +73,13 @@ about this" signal for judges.
   color (e.g. a Carbon Transaction form's submit button is Environmental green)
 
 ## Typography
+
 - Wireframe uses Excalidraw's default font stack (hand-drawn placeholder) — for the real build,
   use a clean sans-serif (Inter or system-ui) as a professional stand-in; keep heading weights
   bold, body regular, captions/labels muted (`#495057`)
 
 ## Mobile responsiveness
+
 - Sidebar collapses to a bottom nav or hamburger drawer on small screens; KPI cards stack
   vertically; leaderboard and gauge remain the priority "above the fold" content on mobile
   dashboard view

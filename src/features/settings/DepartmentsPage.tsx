@@ -1,19 +1,19 @@
-import React, { useEffect, useState } from 'react';
-import { Card } from '../../components/Card';
-import { StatusBadge } from '../../components/StatusBadge';
-import { LoadingSpinner } from '../../components/LoadingSpinner';
-import { ErrorState } from '../../components/ErrorState';
-import { 
-  getDepartments, 
-  createDepartment, 
-  updateDepartment, 
-  deleteDepartment 
-} from '../../lib/db/departments';
-import { getUsers } from '../../lib/db/users';
-import { Department, UserProfile } from '../../lib/types';
-import { toast } from 'react-hot-toast';
-import { Plus, Search, Edit2, Trash2, X, AlertTriangle } from 'lucide-react';
-import { useAuth } from '../auth/AuthContext';
+import React, { useEffect, useState } from "react";
+import { Card } from "../../components/Card";
+import { StatusBadge } from "../../components/StatusBadge";
+import { LoadingSpinner } from "../../components/LoadingSpinner";
+import { ErrorState } from "../../components/ErrorState";
+import {
+  getDepartments,
+  createDepartment,
+  updateDepartment,
+  deleteDepartment,
+} from "../../lib/db/departments";
+import { getUsers } from "../../lib/db/users";
+import { Department, UserProfile } from "../../lib/types";
+import { toast } from "react-hot-toast";
+import { Plus, Search, Edit2, Trash2, X, AlertTriangle } from "lucide-react";
+import { useAuth } from "../auth/AuthContext";
 
 export const DepartmentsPage: React.FC = () => {
   const { profile } = useAuth();
@@ -23,23 +23,25 @@ export const DepartmentsPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
 
   // Search & Filter
-  const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('active');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState<
+    "all" | "active" | "inactive"
+  >("active");
 
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalAction, setModalAction] = useState<'create' | 'edit'>('create');
+  const [modalAction, setModalAction] = useState<"create" | "edit">("create");
   const [selectedDept, setSelectedDept] = useState<Department | null>(null);
 
   // Form Fields
-  const [name, setName] = useState('');
-  const [code, setCode] = useState('');
-  const [headId, setHeadId] = useState('');
-  const [parentDeptId, setParentDeptId] = useState('');
+  const [name, setName] = useState("");
+  const [code, setCode] = useState("");
+  const [headId, setHeadId] = useState("");
+  const [parentDeptId, setParentDeptId] = useState("");
   const [employeeCount, setEmployeeCount] = useState(0);
-  const [status, setStatus] = useState<'active' | 'inactive'>('active');
+  const [status, setStatus] = useState<"active" | "inactive">("active");
 
-  const isAdmin = profile?.role === 'admin';
+  const isAdmin = profile?.role === "admin";
 
   const loadData = async () => {
     try {
@@ -47,13 +49,13 @@ export const DepartmentsPage: React.FC = () => {
       setError(null);
       const [deptsData, usersData] = await Promise.all([
         getDepartments(),
-        getUsers()
+        getUsers(),
       ]);
       setDepartments(deptsData);
       setUsers(usersData);
     } catch (err: any) {
       console.error(err);
-      setError(err.message || 'Failed to load departments data.');
+      setError(err.message || "Failed to load departments data.");
     } finally {
       setLoading(false);
     }
@@ -64,24 +66,24 @@ export const DepartmentsPage: React.FC = () => {
   }, []);
 
   const openCreateModal = () => {
-    setModalAction('create');
+    setModalAction("create");
     setSelectedDept(null);
-    setName('');
-    setCode('');
-    setHeadId('');
-    setParentDeptId('');
+    setName("");
+    setCode("");
+    setHeadId("");
+    setParentDeptId("");
     setEmployeeCount(0);
-    setStatus('active');
+    setStatus("active");
     setIsModalOpen(true);
   };
 
   const openEditModal = (dept: Department) => {
-    setModalAction('edit');
+    setModalAction("edit");
     setSelectedDept(dept);
     setName(dept.name);
     setCode(dept.code);
-    setHeadId(dept.head_id || '');
-    setParentDeptId(dept.parent_department_id || '');
+    setHeadId(dept.head_id || "");
+    setParentDeptId(dept.parent_department_id || "");
     setEmployeeCount(dept.employee_count);
     setStatus(dept.status);
     setIsModalOpen(true);
@@ -90,7 +92,7 @@ export const DepartmentsPage: React.FC = () => {
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name || !code) {
-      toast.error('Department name and code are required.');
+      toast.error("Department name and code are required.");
       return;
     }
 
@@ -100,47 +102,52 @@ export const DepartmentsPage: React.FC = () => {
       head_id: headId || null,
       parent_department_id: parentDeptId || null,
       employee_count: Number(employeeCount),
-      status
+      status,
     };
 
     try {
-      if (modalAction === 'create') {
+      if (modalAction === "create") {
         await createDepartment(payload);
-        toast.success('Department created successfully!');
-      } else if (modalAction === 'edit' && selectedDept) {
+        toast.success("Department created successfully!");
+      } else if (modalAction === "edit" && selectedDept) {
         await updateDepartment(selectedDept.id, payload);
-        toast.success('Department updated successfully!');
+        toast.success("Department updated successfully!");
       }
       setIsModalOpen(false);
       loadData();
     } catch (err: any) {
       console.error(err);
-      toast.error(err.message || 'Failed to save department.');
+      toast.error(err.message || "Failed to save department.");
     }
   };
 
   const handleDeleteDept = async (id: string) => {
-    if (!window.confirm('Are you sure you want to make this department inactive? This soft-deletes the record.')) {
+    if (
+      !window.confirm(
+        "Are you sure you want to make this department inactive? This soft-deletes the record.",
+      )
+    ) {
       return;
     }
 
     try {
       await deleteDepartment(id);
-      toast.success('Department status updated to inactive.');
+      toast.success("Department status updated to inactive.");
       loadData();
     } catch (err: any) {
       console.error(err);
-      toast.error(err.message || 'Failed to delete department.');
+      toast.error(err.message || "Failed to delete department.");
     }
   };
 
   // Filters
-  const filteredDepartments = departments.filter(dept => {
-    const matchesSearch = 
-      dept.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+  const filteredDepartments = departments.filter((dept) => {
+    const matchesSearch =
+      dept.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       dept.code.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    const matchesStatus = statusFilter === 'all' || dept.status === statusFilter;
+
+    const matchesStatus =
+      statusFilter === "all" || dept.status === statusFilter;
 
     return matchesSearch && matchesStatus;
   });
@@ -153,8 +160,12 @@ export const DepartmentsPage: React.FC = () => {
       {/* Title block with CTA */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
         <div>
-          <h2 className="text-2xl font-black text-text-primary m-0 tracking-tight">Departments Directory</h2>
-          <p className="text-xs text-text-secondary mt-1">Manage organization structures, department heads, and counts.</p>
+          <h2 className="text-2xl font-black text-text-primary m-0 tracking-tight">
+            Departments Directory
+          </h2>
+          <p className="text-xs text-text-secondary mt-1">
+            Manage organization structures, department heads, and counts.
+          </p>
         </div>
         {isAdmin && (
           <button
@@ -182,7 +193,9 @@ export const DepartmentsPage: React.FC = () => {
         </div>
         {/* Status Filter */}
         <div className="flex items-center space-x-2">
-          <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Status:</label>
+          <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">
+            Status:
+          </label>
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value as any)}
@@ -200,7 +213,9 @@ export const DepartmentsPage: React.FC = () => {
         {filteredDepartments.length === 0 ? (
           <div className="text-center py-12 space-y-3">
             <div className="text-4xl text-text-secondary/30">🏢</div>
-            <p className="text-sm font-bold text-text-secondary">No departments found matching search criteria.</p>
+            <p className="text-sm font-bold text-text-secondary">
+              No departments found matching search criteria.
+            </p>
           </div>
         ) : (
           <div className="overflow-x-auto">
@@ -212,14 +227,19 @@ export const DepartmentsPage: React.FC = () => {
                   <th className="py-3.5 px-4">Dept Head</th>
                   <th className="py-3.5 px-4 text-center">Employees</th>
                   <th className="py-3.5 px-4 text-center">Status</th>
-                  {isAdmin && <th className="py-3.5 px-4 text-right">Actions</th>}
+                  {isAdmin && (
+                    <th className="py-3.5 px-4 text-right">Actions</th>
+                  )}
                 </tr>
               </thead>
               <tbody className="divide-y divide-border text-xs">
                 {filteredDepartments.map((dept) => {
-                  const headUser = users.find(u => u.id === dept.head_id);
+                  const headUser = users.find((u) => u.id === dept.head_id);
                   return (
-                    <tr key={dept.id} className="hover:bg-surface/30 transition-colors">
+                    <tr
+                      key={dept.id}
+                      className="hover:bg-surface/30 transition-colors"
+                    >
                       <td className="py-4 px-4 font-black text-text-primary tracking-wide">
                         <span className="bg-surface border border-border px-2 py-0.5 rounded">
                           {dept.code}
@@ -237,7 +257,9 @@ export const DepartmentsPage: React.FC = () => {
                             <span>{headUser.name}</span>
                           </div>
                         ) : (
-                          <span className="text-text-secondary/40 italic">Not Assigned</span>
+                          <span className="text-text-secondary/40 italic">
+                            Not Assigned
+                          </span>
                         )}
                       </td>
                       <td className="py-4 px-4 text-center font-bold text-text-primary">
@@ -255,7 +277,7 @@ export const DepartmentsPage: React.FC = () => {
                           >
                             <Edit2 className="h-3.5 w-3.5" />
                           </button>
-                          {dept.status === 'active' && (
+                          {dept.status === "active" && (
                             <button
                               onClick={() => handleDeleteDept(dept.id)}
                               title="Deactivate"
@@ -282,7 +304,9 @@ export const DepartmentsPage: React.FC = () => {
             {/* Modal Header */}
             <div className="p-5 border-b border-border flex items-center justify-between">
               <h3 className="text-sm font-bold text-text-primary uppercase tracking-widest">
-                {modalAction === 'create' ? 'Add New Department' : 'Edit Department'}
+                {modalAction === "create"
+                  ? "Add New Department"
+                  : "Edit Department"}
               </h3>
               <button
                 onClick={() => setIsModalOpen(false)}
@@ -293,7 +317,10 @@ export const DepartmentsPage: React.FC = () => {
             </div>
 
             {/* Modal Form */}
-            <form onSubmit={handleFormSubmit} className="flex-1 overflow-y-auto p-5 space-y-4">
+            <form
+              onSubmit={handleFormSubmit}
+              className="flex-1 overflow-y-auto p-5 space-y-4"
+            >
               <div>
                 <label className="block text-xs font-bold text-text-secondary uppercase tracking-wider mb-2">
                   Department Name*
@@ -320,7 +347,7 @@ export const DepartmentsPage: React.FC = () => {
                     onChange={(e) => setCode(e.target.value)}
                     placeholder="e.g. SAL"
                     className="w-full px-3 py-2 border border-border rounded-lg bg-base text-xs text-text-primary placeholder:text-text-secondary/40 focus:outline-none focus:ring-1 focus:ring-primary focus:border-transparent transition-all"
-                    disabled={modalAction === 'edit'} // Code shouldn't change
+                    disabled={modalAction === "edit"} // Code shouldn't change
                   />
                 </div>
                 <div>
@@ -347,8 +374,10 @@ export const DepartmentsPage: React.FC = () => {
                   className="w-full px-3 py-2 border border-border rounded-lg bg-base text-xs text-text-primary focus:outline-none focus:ring-1 focus:ring-primary"
                 >
                   <option value="">-- Select Department Head --</option>
-                  {users.map(u => (
-                    <option key={u.id} value={u.id}>{u.name} ({u.role.replace('_', ' ')})</option>
+                  {users.map((u) => (
+                    <option key={u.id} value={u.id}>
+                      {u.name} ({u.role.replace("_", " ")})
+                    </option>
                   ))}
                 </select>
               </div>
@@ -362,11 +391,15 @@ export const DepartmentsPage: React.FC = () => {
                   onChange={(e) => setParentDeptId(e.target.value)}
                   className="w-full px-3 py-2 border border-border rounded-lg bg-base text-xs text-text-primary focus:outline-none focus:ring-1 focus:ring-primary"
                 >
-                  <option value="">-- Select Parent Department (Optional) --</option>
+                  <option value="">
+                    -- Select Parent Department (Optional) --
+                  </option>
                   {departments
-                    .filter(d => !selectedDept || d.id !== selectedDept.id) // Avoid self-reference
-                    .map(d => (
-                      <option key={d.id} value={d.id}>{d.name} ({d.code})</option>
+                    .filter((d) => !selectedDept || d.id !== selectedDept.id) // Avoid self-reference
+                    .map((d) => (
+                      <option key={d.id} value={d.id}>
+                        {d.name} ({d.code})
+                      </option>
                     ))}
                 </select>
               </div>
@@ -380,8 +413,8 @@ export const DepartmentsPage: React.FC = () => {
                     <input
                       type="radio"
                       name="status"
-                      checked={status === 'active'}
-                      onChange={() => setStatus('active')}
+                      checked={status === "active"}
+                      onChange={() => setStatus("active")}
                       className="text-primary focus:ring-primary"
                     />
                     <span>Active</span>
@@ -390,8 +423,8 @@ export const DepartmentsPage: React.FC = () => {
                     <input
                       type="radio"
                       name="status"
-                      checked={status === 'inactive'}
-                      onChange={() => setStatus('inactive')}
+                      checked={status === "inactive"}
+                      onChange={() => setStatus("inactive")}
                       className="text-primary focus:ring-primary"
                     />
                     <span>Inactive</span>
@@ -412,7 +445,7 @@ export const DepartmentsPage: React.FC = () => {
                   type="submit"
                   className="px-4 py-2 bg-primary hover:bg-[#2b8a3e] text-white border border-transparent rounded-lg text-xs font-bold shadow-md shadow-primary/10 transition-colors"
                 >
-                  {modalAction === 'create' ? 'Create' : 'Save Changes'}
+                  {modalAction === "create" ? "Create" : "Save Changes"}
                 </button>
               </div>
             </form>

@@ -1,13 +1,13 @@
-import React from 'react';
+import React from "react";
 
 interface LoadingSpinnerProps {
   message?: string;
   fullScreen?: boolean;
 }
 
-export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({ 
-  message = 'Loading data...', 
-  fullScreen = false 
+export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
+  message = "Loading data...",
+  fullScreen = false,
 }) => {
   const content = (
     <div className="text-center p-8 select-none">
@@ -31,5 +31,9 @@ export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
     );
   }
 
-  return <div className="flex items-center justify-center w-full h-full min-h-[200px]">{content}</div>;
+  return (
+    <div className="flex items-center justify-center w-full h-full min-h-[200px]">
+      {content}
+    </div>
+  );
 };

@@ -1,45 +1,51 @@
-import React, { useEffect, useState } from 'react';
-import { Card } from '../../components/Card';
-import { StatusBadge } from '../../components/StatusBadge';
-import { LoadingSpinner } from '../../components/LoadingSpinner';
-import { ErrorState } from '../../components/ErrorState';
-import { 
-  getEnvironmentalGoals, 
-  createEnvironmentalGoal, 
-  updateEnvironmentalGoal, 
-  deleteEnvironmentalGoal 
-} from '../../lib/db/environmentalGoals';
-import { getDepartments } from '../../lib/db/departments';
-import { EnvironmentalGoal, Department } from '../../lib/types';
-import { toast } from 'react-hot-toast';
-import { Plus, Search, Edit2, Trash2, X, Target } from 'lucide-react';
-import { useAuth } from '../auth/AuthContext';
+import React, { useEffect, useState } from "react";
+import { Card } from "../../components/Card";
+import { StatusBadge } from "../../components/StatusBadge";
+import { LoadingSpinner } from "../../components/LoadingSpinner";
+import { ErrorState } from "../../components/ErrorState";
+import {
+  getEnvironmentalGoals,
+  createEnvironmentalGoal,
+  updateEnvironmentalGoal,
+  deleteEnvironmentalGoal,
+} from "../../lib/db/environmentalGoals";
+import { getDepartments } from "../../lib/db/departments";
+import { EnvironmentalGoal, Department } from "../../lib/types";
+import { toast } from "react-hot-toast";
+import { Plus, Search, Edit2, Trash2, X, Target } from "lucide-react";
+import { useAuth } from "../auth/AuthContext";
 
 export const EnvironmentalGoalsPage: React.FC = () => {
   const { profile } = useAuth();
-  const [goals, setGoals] = useState<(EnvironmentalGoal & { department_name?: string })[]>([]);
+  const [goals, setGoals] = useState<
+    (EnvironmentalGoal & { department_name?: string })[]
+  >([]);
   const [departments, setDepartments] = useState<Department[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   // Search & Filter
-  const [searchTerm, setSearchTerm] = useState('');
-  const [deptFilter, setDeptFilter] = useState('all');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [deptFilter, setDeptFilter] = useState("all");
 
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalAction, setModalAction] = useState<'create' | 'edit'>('create');
-  const [selectedGoal, setSelectedGoal] = useState<EnvironmentalGoal | null>(null);
+  const [modalAction, setModalAction] = useState<"create" | "edit">("create");
+  const [selectedGoal, setSelectedGoal] = useState<EnvironmentalGoal | null>(
+    null,
+  );
 
   // Form Fields
-  const [departmentId, setDepartmentId] = useState('');
-  const [targetMetric, setTargetMetric] = useState('');
+  const [departmentId, setDepartmentId] = useState("");
+  const [targetMetric, setTargetMetric] = useState("");
   const [targetValue, setTargetValue] = useState<number>(0);
-  const [deadline, setDeadline] = useState('');
-  const [status, setStatus] = useState<'active' | 'completed' | 'missed'>('active');
+  const [deadline, setDeadline] = useState("");
+  const [status, setStatus] = useState<"active" | "completed" | "missed">(
+    "active",
+  );
 
-  const isAdmin = profile?.role === 'admin';
-  const isDeptHead = profile?.role === 'department_head';
+  const isAdmin = profile?.role === "admin";
+  const isDeptHead = profile?.role === "department_head";
   const canWrite = isAdmin || isDeptHead;
 
   const loadData = async () => {
@@ -48,13 +54,13 @@ export const EnvironmentalGoalsPage: React.FC = () => {
       setError(null);
       const [goalsData, deptsData] = await Promise.all([
         getEnvironmentalGoals(),
-        getDepartments()
+        getDepartments(),
       ]);
       setGoals(goalsData);
-      setDepartments(deptsData.filter(d => d.status === 'active'));
+      setDepartments(deptsData.filter((d) => d.status === "active"));
     } catch (err: any) {
       console.error(err);
-      setError(err.message || 'Failed to load environmental goals.');
+      setError(err.message || "Failed to load environmental goals.");
     } finally {
       setLoading(false);
     }
@@ -65,18 +71,20 @@ export const EnvironmentalGoalsPage: React.FC = () => {
   }, []);
 
   const openCreateModal = () => {
-    setModalAction('create');
+    setModalAction("create");
     setSelectedGoal(null);
-    setDepartmentId(profile?.department_id || '');
-    setTargetMetric('');
+    setDepartmentId(profile?.department_id || "");
+    setTargetMetric("");
     setTargetValue(0);
-    setDeadline(new Date(new Date().getFullYear(), 11, 31).toISOString().split('T')[0]); // Default to Dec 31 of current year
-    setStatus('active');
+    setDeadline(
+      new Date(new Date().getFullYear(), 11, 31).toISOString().split("T")[0],
+    ); // Default to Dec 31 of current year
+    setStatus("active");
     setIsModalOpen(true);
   };
 
   const openEditModal = (goal: EnvironmentalGoal) => {
-    setModalAction('edit');
+    setModalAction("edit");
     setSelectedGoal(goal);
     setDepartmentId(goal.department_id);
     setTargetMetric(goal.target_metric);
@@ -89,7 +97,7 @@ export const EnvironmentalGoalsPage: React.FC = () => {
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!departmentId || !targetMetric || targetValue <= 0 || !deadline) {
-      toast.error('Please enter all required fields.');
+      toast.error("Please enter all required fields.");
       return;
     }
 
@@ -98,49 +106,55 @@ export const EnvironmentalGoalsPage: React.FC = () => {
       target_metric: targetMetric,
       target_value: Number(targetValue),
       deadline,
-      status
+      status,
     };
 
     try {
-      if (modalAction === 'create') {
+      if (modalAction === "create") {
         await createEnvironmentalGoal(payload);
-        toast.success('Environmental Goal created successfully!');
-      } else if (modalAction === 'edit' && selectedGoal) {
+        toast.success("Environmental Goal created successfully!");
+      } else if (modalAction === "edit" && selectedGoal) {
         await updateEnvironmentalGoal(selectedGoal.id, payload);
-        toast.success('Environmental Goal updated.');
+        toast.success("Environmental Goal updated.");
       }
       setIsModalOpen(false);
       loadData();
     } catch (err: any) {
       console.error(err);
-      toast.error(err.message || 'Failed to save environmental goal.');
+      toast.error(err.message || "Failed to save environmental goal.");
     }
   };
 
   const handleDeleteGoal = async (id: string) => {
-    if (!window.confirm('Are you sure you want to permanently delete this goal?')) {
+    if (
+      !window.confirm("Are you sure you want to permanently delete this goal?")
+    ) {
       return;
     }
 
     try {
       await deleteEnvironmentalGoal(id);
-      toast.success('Goal deleted.');
+      toast.success("Goal deleted.");
       loadData();
     } catch (err: any) {
       console.error(err);
-      toast.error(err.message || 'Failed to delete goal.');
+      toast.error(err.message || "Failed to delete goal.");
     }
   };
 
   // Filters
-  const filteredGoals = goals.filter(goal => {
-    const matchesSearch = goal.target_metric.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesDept = deptFilter === 'all' || goal.department_id === deptFilter;
+  const filteredGoals = goals.filter((goal) => {
+    const matchesSearch = goal.target_metric
+      .toLowerCase()
+      .includes(searchTerm.toLowerCase());
+    const matchesDept =
+      deptFilter === "all" || goal.department_id === deptFilter;
 
     return matchesSearch && matchesDept;
   });
 
-  if (loading) return <LoadingSpinner message="Loading environmental goals..." />;
+  if (loading)
+    return <LoadingSpinner message="Loading environmental goals..." />;
   if (error) return <ErrorState message={error} onRetry={loadData} />;
 
   return (
@@ -149,10 +163,14 @@ export const EnvironmentalGoalsPage: React.FC = () => {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
         <div>
           <h2 className="text-2xl font-black text-text-primary m-0 tracking-tight flex items-center space-x-2">
-            <span className="text-primary"><Target className="h-6 w-6" /></span>
+            <span className="text-primary">
+              <Target className="h-6 w-6" />
+            </span>
             <span>Environmental Goals & Targets</span>
           </h2>
-          <p className="text-xs text-text-secondary mt-1">Set, track, and audit carbon reduction goals per department.</p>
+          <p className="text-xs text-text-secondary mt-1">
+            Set, track, and audit carbon reduction goals per department.
+          </p>
         </div>
         {canWrite && (
           <button
@@ -178,18 +196,22 @@ export const EnvironmentalGoalsPage: React.FC = () => {
             className="w-full pl-9 pr-4 py-2 border border-border rounded-lg bg-base text-xs text-text-primary placeholder:text-text-secondary/50 focus:outline-none focus:ring-1 focus:ring-primary focus:border-transparent transition-all"
           />
         </div>
-        
+
         {/* Department Filter */}
         <div className="flex items-center space-x-2">
-          <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Department:</label>
+          <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">
+            Department:
+          </label>
           <select
             value={deptFilter}
             onChange={(e) => setDeptFilter(e.target.value)}
             className="border border-border rounded-lg bg-base px-3 py-2 text-xs text-text-primary focus:outline-none focus:ring-1 focus:ring-primary"
           >
             <option value="all">All Departments</option>
-            {departments.map(d => (
-              <option key={d.id} value={d.id}>{d.name}</option>
+            {departments.map((d) => (
+              <option key={d.id} value={d.id}>
+                {d.name}
+              </option>
             ))}
           </select>
         </div>
@@ -200,7 +222,9 @@ export const EnvironmentalGoalsPage: React.FC = () => {
         {filteredGoals.length === 0 ? (
           <div className="text-center py-12 space-y-3">
             <div className="text-4xl text-text-secondary/30">🎯</div>
-            <p className="text-sm font-bold text-text-secondary">No environmental goals defined matching criteria.</p>
+            <p className="text-sm font-bold text-text-secondary">
+              No environmental goals defined matching criteria.
+            </p>
           </div>
         ) : (
           <div className="overflow-x-auto">
@@ -212,12 +236,17 @@ export const EnvironmentalGoalsPage: React.FC = () => {
                   <th className="py-3.5 px-4 text-right">Target Value</th>
                   <th className="py-3.5 px-4">Deadline</th>
                   <th className="py-3.5 px-4 text-center">Status</th>
-                  {canWrite && <th className="py-3.5 px-4 text-right">Actions</th>}
+                  {canWrite && (
+                    <th className="py-3.5 px-4 text-right">Actions</th>
+                  )}
                 </tr>
               </thead>
               <tbody className="divide-y divide-border text-xs">
                 {filteredGoals.map((goal) => (
-                  <tr key={goal.id} className="hover:bg-surface/30 transition-colors">
+                  <tr
+                    key={goal.id}
+                    className="hover:bg-surface/30 transition-colors"
+                  >
                     <td className="py-4 px-4 font-bold text-text-primary">
                       {goal.department_name}
                     </td>
@@ -225,7 +254,10 @@ export const EnvironmentalGoalsPage: React.FC = () => {
                       {goal.target_metric}
                     </td>
                     <td className="py-4 px-4 text-right font-black text-text-primary">
-                      {goal.target_value.toLocaleString()} <span className="text-[10px] text-text-secondary/50 font-normal">kgCO₂e</span>
+                      {goal.target_value.toLocaleString()}{" "}
+                      <span className="text-[10px] text-text-secondary/50 font-normal">
+                        kgCO₂e
+                      </span>
                     </td>
                     <td className="py-4 px-4 font-semibold text-text-secondary">
                       {goal.deadline}
@@ -266,7 +298,9 @@ export const EnvironmentalGoalsPage: React.FC = () => {
             {/* Header */}
             <div className="p-5 border-b border-border flex items-center justify-between">
               <h3 className="text-sm font-bold text-text-primary uppercase tracking-widest">
-                {modalAction === 'create' ? 'Add Environmental Goal' : 'Edit Goal Details'}
+                {modalAction === "create"
+                  ? "Add Environmental Goal"
+                  : "Edit Goal Details"}
               </h3>
               <button
                 onClick={() => setIsModalOpen(false)}
@@ -277,7 +311,10 @@ export const EnvironmentalGoalsPage: React.FC = () => {
             </div>
 
             {/* Form */}
-            <form onSubmit={handleFormSubmit} className="p-5 space-y-4 text-left">
+            <form
+              onSubmit={handleFormSubmit}
+              className="p-5 space-y-4 text-left"
+            >
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-bold text-text-secondary uppercase tracking-wider mb-2">
@@ -290,8 +327,10 @@ export const EnvironmentalGoalsPage: React.FC = () => {
                     className="w-full px-3 py-2 border border-border rounded-lg bg-base text-xs text-text-primary focus:outline-none focus:ring-1 focus:ring-primary"
                   >
                     <option value="">-- Select --</option>
-                    {departments.map(d => (
-                      <option key={d.id} value={d.id}>{d.name}</option>
+                    {departments.map((d) => (
+                      <option key={d.id} value={d.id}>
+                        {d.name}
+                      </option>
                     ))}
                   </select>
                 </div>
@@ -332,7 +371,7 @@ export const EnvironmentalGoalsPage: React.FC = () => {
                     type="number"
                     min="1"
                     required
-                    value={targetValue || ''}
+                    value={targetValue || ""}
                     onChange={(e) => setTargetValue(Number(e.target.value))}
                     className="w-full px-3 py-2 border border-border rounded-lg bg-base text-xs text-text-primary focus:outline-none focus:ring-1 focus:ring-primary focus:border-transparent transition-all"
                   />
@@ -367,7 +406,7 @@ export const EnvironmentalGoalsPage: React.FC = () => {
                   type="submit"
                   className="px-4 py-2 bg-primary hover:bg-[#2b8a3e] text-white border border-transparent rounded-lg text-xs font-bold shadow-md shadow-primary/10 transition-colors"
                 >
-                  {modalAction === 'create' ? 'Save Goal' : 'Save Changes'}
+                  {modalAction === "create" ? "Save Goal" : "Save Changes"}
                 </button>
               </div>
             </form>

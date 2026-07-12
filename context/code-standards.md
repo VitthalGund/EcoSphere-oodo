@@ -5,6 +5,7 @@ comprehensive style guide. When in doubt, favor "obviously correct and fast to w
 "elegant."
 
 ## General
+
 - TypeScript for anything nontrivial; plain JS acceptable for quick glue code only if time-pressed
 - One feature = one folder under `/src/features/<pillar>` with its own components, hooks, and
   API calls colocated — don't scatter one feature's logic across shared folders
@@ -12,6 +13,7 @@ comprehensive style guide. When in doubt, favor "obviously correct and fast to w
   extracting too early costs more time than it saves in an 8-hour build
 
 ## Data access
+
 - All Supabase queries go through a thin `/src/lib/db/<entity>.ts` module (e.g. `db/challenges.ts`
   exports `getActiveChallenges()`, `createChallenge()`, etc.) — never call `supabase.from(...)`
   directly inside a React component
@@ -21,6 +23,7 @@ comprehensive style guide. When in doubt, favor "obviously correct and fast to w
   drift and stop matching the invariants in `architecture.md`
 
 ## AI calls
+
 - All Claude API calls go through `/src/lib/ai/classify.ts` and `/src/lib/ai/explainScore.ts` —
   never inline a `fetch` to the Anthropic API in a component
 - Every AI response that will be shown to the user must be a **confirm-before-commit** step, not
@@ -30,6 +33,7 @@ comprehensive style guide. When in doubt, favor "obviously correct and fast to w
   manually") — an AI API hiccup during judging must never blank-screen the app
 
 ## State & error handling
+
 - Loading and error states are required on every data-fetching component, even a simple spinner +
   "couldn't load, retry" — half-built loading states are one of the fastest ways to look unfinished
   to judges
@@ -37,6 +41,7 @@ comprehensive style guide. When in doubt, favor "obviously correct and fast to w
   but must reconcile with the real server response, not just trust the client
 
 ## Testing (scoped for 8 hours — do this, skip everything else)
+
 - Manually test these exact flows before the demo, in this order, and don't skip any:
   1. Create a Carbon Transaction via the AI Classifier end-to-end → confirm it appears in the
      Environmental dashboard and the Score Gauge moves
@@ -53,6 +58,7 @@ comprehensive style guide. When in doubt, favor "obviously correct and fast to w
   the invariant most likely to silently break.
 
 ## Git / delivery hygiene
+
 - Commit after each working vertical slice (e.g. "Carbon Transaction CRUD works end to end"), not
   after each file — commits should represent demoable checkpoints so you can always roll back to a
   working state under time pressure

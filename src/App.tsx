@@ -1,28 +1,28 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { Toaster } from 'react-hot-toast';
-import { AuthProvider, ProtectedRoute } from './features/auth/AuthContext';
-import { LoginPage } from './features/auth/LoginPage';
-import { Layout } from './components/Layout';
-import { PlaceholderPage } from './pages/PlaceholderPage';
-import { DashboardPage } from './features/dashboard/DashboardPage';
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { Toaster } from "react-hot-toast";
+import { AuthProvider, ProtectedRoute } from "./features/auth/AuthContext";
+import { LoginPage } from "./features/auth/LoginPage";
+import { Layout } from "./components/Layout";
+import { PlaceholderPage } from "./pages/PlaceholderPage";
+import { DashboardPage } from "./features/dashboard/DashboardPage";
 
 // Phase 2 real page imports
-import { DepartmentsPage } from './features/settings/DepartmentsPage';
-import { CategoriesPage } from './features/settings/CategoriesPage';
-import { ESGConfigPage } from './features/settings/ESGConfigPage';
-import { EmissionFactorsPage } from './features/environmental/EmissionFactorsPage';
+import { DepartmentsPage } from "./features/settings/DepartmentsPage";
+import { CategoriesPage } from "./features/settings/CategoriesPage";
+import { ESGConfigPage } from "./features/settings/ESGConfigPage";
+import { EmissionFactorsPage } from "./features/environmental/EmissionFactorsPage";
 
 // Phase 3 real page imports
-import { EnvironmentalDashboard } from './features/environmental/EnvironmentalDashboard';
-import { CarbonTransactionsPage } from './features/environmental/CarbonTransactionsPage';
-import { EnvironmentalGoalsPage } from './features/environmental/EnvironmentalGoalsPage';
+import { EnvironmentalDashboard } from "./features/environmental/EnvironmentalDashboard";
+import { CarbonTransactionsPage } from "./features/environmental/CarbonTransactionsPage";
+import { EnvironmentalGoalsPage } from "./features/environmental/EnvironmentalGoalsPage";
 
 // Phase 4 real page imports
-import { ChallengesPage } from './features/gamification/ChallengesPage';
-import { ChallengeDetailPage } from './features/gamification/ChallengeDetailPage';
-import { BadgesPage } from './features/gamification/BadgesPage';
-import { RewardsPage } from './features/gamification/RewardsPage';
-import { LeaderboardPage } from './features/gamification/LeaderboardPage';
+import { ChallengesPage } from "./features/gamification/ChallengesPage";
+import { ChallengeDetailPage } from "./features/gamification/ChallengeDetailPage";
+import { BadgesPage } from "./features/gamification/BadgesPage";
+import { RewardsPage } from "./features/gamification/RewardsPage";
+import { LeaderboardPage } from "./features/gamification/LeaderboardPage";
 
 function App() {
   return (
@@ -250,24 +250,25 @@ function App() {
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>
-      
+
       {/* Toast Notification Container */}
-      <Toaster 
+      <Toaster
         position="top-right"
         toastOptions={{
-          className: 'bg-base border border-border text-text-primary rounded-xl text-xs font-bold font-sans shadow-lg',
+          className:
+            "bg-base border border-border text-text-primary rounded-xl text-xs font-bold font-sans shadow-lg",
           success: {
             duration: 3000,
             iconTheme: {
-              primary: '#2f9e44',
-              secondary: '#fff',
+              primary: "#2f9e44",
+              secondary: "#fff",
             },
           },
           error: {
             duration: 4000,
             iconTheme: {
-              primary: '#e03131',
-              secondary: '#fff',
+              primary: "#e03131",
+              secondary: "#fff",
             },
           },
         }}

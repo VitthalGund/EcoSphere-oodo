@@ -1,6 +1,6 @@
-import React from 'react';
-import { Card } from '../components/Card';
-import { Sparkles } from 'lucide-react';
+import React from "react";
+import { Card } from "../components/Card";
+import { Sparkles } from "lucide-react";
 
 interface PlaceholderPageProps {
   title: string;
@@ -9,8 +9,8 @@ interface PlaceholderPageProps {
 export const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title }) => {
   return (
     <div className="space-y-6">
-      <Card 
-        title={`${title} Module`} 
+      <Card
+        title={`${title} Module`}
         subtitle="Under construction for subsequent phases of the EcoSphere demo"
         accent="primary"
       >
@@ -19,9 +19,13 @@ export const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ title }) => {
             🌱
           </div>
           <div className="space-y-2 max-w-md">
-            <h2 className="text-xl font-black text-text-primary">Feature Placeholder</h2>
+            <h2 className="text-xl font-black text-text-primary">
+              Feature Placeholder
+            </h2>
             <p className="text-sm text-text-secondary">
-              The <strong>{title}</strong> page has been scaffolded and connected to the navigation shell. It will be fully populated with real interactive data in the next phases.
+              The <strong>{title}</strong> page has been scaffolded and
+              connected to the navigation shell. It will be fully populated with
+              real interactive data in the next phases.
             </p>
           </div>
           <div className="inline-flex items-center space-x-1.5 text-xs text-governance font-bold bg-governance/10 px-3 py-1 rounded-full">

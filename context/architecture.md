@@ -1,6 +1,7 @@
 # EcoSphere — Architecture
 
 ## Stack
+
 - **Frontend:** React + Tailwind CSS, Recharts for charts/gauges
 - **Backend/DB/Auth:** Supabase (Postgres + Auth + Row-Level Security + Storage) — chosen over a
   hand-rolled backend to save build time; RBAC via a `role` column + RLS policies, not a custom
@@ -10,6 +11,7 @@
 - **Deployment:** Vercel (frontend) + Supabase (hosted backend)
 
 ## System boundaries
+
 - EcoSphere does **not** connect to a real ERP. Purchase/Manufacturing/Expense/Fleet records that
   "auto-generate" Carbon Transactions are **simulated** via a simple form or seed data — the AI
   Emission Classifier takes free-text input standing in for that ERP feed.
@@ -20,6 +22,7 @@
 ## Data model (master vs. transactional — mirrors the problem statement exactly)
 
 ### Master data
+
 - `departments` (id, name, code, head_id, parent_department_id, employee_count, status)
 - `categories` (id, name, type[csr_activity|challenge], status)
 - `emission_factors` (id, name, category, factor_value, unit, source)
@@ -30,6 +33,7 @@
 - `rewards` (id, name, description, points_required, stock, status)
 
 ### Transactional data
+
 - `carbon_transactions` (id, department_id, emission_factor_id, source_type, amount, co2e, date,
   created_via[manual|ai_classifier])
 - `csr_activities` (id, title, category_id, department_id, description, date)
@@ -48,6 +52,7 @@
   points_balance)
 
 ## Invariants (must hold regardless of which screen writes the data)
+
 1. A Badge's `unlock_rule` is evaluated by **one generic rule-evaluator function**, run after every
    XP-changing or challenge-completing event. Never hardcode "if user.xp > 100, award badge X" per
    badge — store the threshold in `unlock_rule` and evaluate generically.
@@ -62,6 +67,7 @@
    branch the data model.
 
 ## AI integration pattern
+
 - **AI Emission Classifier:** free-text description → Claude API call with the `emission_factors`
   table (id, name, category) passed as context → structured JSON response
   `{ emission_factor_id, confidence, suggested_amount }` → pre-fills the Carbon Transaction form for
@@ -73,6 +79,7 @@
   that owns the API key — the frontend never touches it directly.
 
 ## Folder structure (suggested)
+
 ```
 /src
   /components      shared UI (cards, gauges, badges, nav)

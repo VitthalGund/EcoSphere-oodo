@@ -1,12 +1,12 @@
-import React, { useEffect, useState } from 'react';
-import { Card } from '../../components/Card';
-import { LoadingSpinner } from '../../components/LoadingSpinner';
-import { ErrorState } from '../../components/ErrorState';
-import { supabase } from '../../lib/supabase';
-import { Badge, UserBadge, UserProfile } from '../../lib/types';
-import { toast } from 'react-hot-toast';
-import { Award, Plus, X, Search, Sparkles, AlertTriangle } from 'lucide-react';
-import { useAuth } from '../auth/AuthContext';
+import React, { useEffect, useState } from "react";
+import { Card } from "../../components/Card";
+import { LoadingSpinner } from "../../components/LoadingSpinner";
+import { ErrorState } from "../../components/ErrorState";
+import { supabase } from "../../lib/supabase";
+import { Badge, UserBadge, UserProfile } from "../../lib/types";
+import { toast } from "react-hot-toast";
+import { Award, Plus, X, Search, Sparkles, AlertTriangle } from "lucide-react";
+import { useAuth } from "../auth/AuthContext";
 
 export const BadgesPage: React.FC = () => {
   const { profile } = useAuth();
@@ -20,19 +20,26 @@ export const BadgesPage: React.FC = () => {
     xp: 0,
     challenges_completed: 0,
     carbon_transactions_logged: 0,
-    csr_activities_completed: 0
+    csr_activities_completed: 0,
   });
 
   // Modal & Form State for Admin
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [name, setName] = useState('');
-  const [description, setDescription] = useState('');
-  const [icon, setIcon] = useState('🌱');
-  const [ruleMetric, setRuleMetric] = useState<'xp' | 'challenges_completed' | 'carbon_transactions_logged' | 'csr_activities_completed'>('xp');
-  const [ruleOperator, setRuleOperator] = useState<'>=' | '>' | '==' | '<='>('>=');
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
+  const [icon, setIcon] = useState("🌱");
+  const [ruleMetric, setRuleMetric] = useState<
+    | "xp"
+    | "challenges_completed"
+    | "carbon_transactions_logged"
+    | "csr_activities_completed"
+  >("xp");
+  const [ruleOperator, setRuleOperator] = useState<">=" | ">" | "==" | "<=">(
+    ">=",
+  );
   const [ruleValue, setRuleValue] = useState<number>(500);
 
-  const isAdmin = profile?.role === 'admin';
+  const isAdmin = profile?.role === "admin";
 
   const loadData = async () => {
     if (!profile) return;
@@ -42,47 +49,59 @@ export const BadgesPage: React.FC = () => {
 
       // 1. Fetch all badges
       const { data: bData, error: bErr } = await supabase
-        .from('badges')
-        .select('*');
+        .from("badges")
+        .select("*");
       if (bErr) throw bErr;
       setBadges(bData as Badge[]);
 
       // 2. Fetch user's unlocked badges
       const { data: ubData, error: ubErr } = await supabase
-        .from('user_badges')
-        .select(`
+        .from("user_badges")
+        .select(
+          `
           *,
           badges:badge_id(name, description, icon)
-        `)
-        .eq('user_id', profile.id);
+        `,
+        )
+        .eq("user_id", profile.id);
       if (ubErr) throw ubErr;
 
       const mappedUserBadges = (ubData || []).map((item: any) => ({
         ...item,
-        badge_name: item.badges?.name || '',
-        badge_description: item.badges?.description || '',
-        badge_icon: item.badges?.icon || '🏆'
+        badge_name: item.badges?.name || "",
+        badge_description: item.badges?.description || "",
+        badge_icon: item.badges?.icon || "🏆",
       }));
       setUnlockedBadges(mappedUserBadges as UserBadge[]);
 
       // 3. Fetch user's counts to check progress
       const [xpVal, chCompleted, txLogged, csrCompleted] = await Promise.all([
-        supabase.from('users').select('xp').eq('id', profile.id).single(),
-        supabase.from('challenge_participations').select('*', { count: 'exact', head: true }).eq('employee_id', profile.id).eq('approval_status', 'approved'),
-        supabase.from('carbon_transactions').select('*', { count: 'exact', head: true }).eq('created_by', profile.id),
-        supabase.from('employee_participations').select('*', { count: 'exact', head: true }).eq('employee_id', profile.id).eq('approval_status', 'approved')
+        supabase.from("users").select("xp").eq("id", profile.id).single(),
+        supabase
+          .from("challenge_participations")
+          .select("*", { count: "exact", head: true })
+          .eq("employee_id", profile.id)
+          .eq("approval_status", "approved"),
+        supabase
+          .from("carbon_transactions")
+          .select("*", { count: "exact", head: true })
+          .eq("created_by", profile.id),
+        supabase
+          .from("employee_participations")
+          .select("*", { count: "exact", head: true })
+          .eq("employee_id", profile.id)
+          .eq("approval_status", "approved"),
       ]);
 
       setUserStats({
         xp: xpVal.data?.xp || 0,
         challenges_completed: chCompleted.count || 0,
         carbon_transactions_logged: txLogged.count || 0,
-        csr_activities_completed: csrCompleted.count || 0
+        csr_activities_completed: csrCompleted.count || 0,
       });
-
     } catch (err: any) {
       console.error(err);
-      setError(err.message || 'Failed to load badges.');
+      setError(err.message || "Failed to load badges.");
     } finally {
       setLoading(false);
     }
@@ -95,7 +114,7 @@ export const BadgesPage: React.FC = () => {
   const handleCreateBadge = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name || !description || !icon || ruleValue < 0) {
-      toast.error('Please enter all required fields.');
+      toast.error("Please enter all required fields.");
       return;
     }
 
@@ -104,42 +123,45 @@ export const BadgesPage: React.FC = () => {
       description,
       icon,
       unlock_rule: {
-        type: 'threshold',
+        type: "threshold",
         metric: ruleMetric,
         operator: ruleOperator,
-        value: Number(ruleValue)
-      }
+        value: Number(ruleValue),
+      },
     };
 
     try {
-      const { error: bErr } = await supabase
-        .from('badges')
-        .insert([newBadge]);
-      
+      const { error: bErr } = await supabase.from("badges").insert([newBadge]);
+
       if (bErr) throw bErr;
-      
-      toast.success('Badge and data-driven rule created successfully!');
+
+      toast.success("Badge and data-driven rule created successfully!");
       setIsModalOpen(false);
       loadData();
     } catch (err: any) {
       console.error(err);
-      toast.error(err.message || 'Failed to create badge.');
+      toast.error(err.message || "Failed to create badge.");
     }
   };
 
   // Helper to check if user has unlocked a badge
   const getUnlockDetails = (badgeId: string) => {
-    return unlockedBadges.find(ub => ub.badge_id === badgeId);
+    return unlockedBadges.find((ub) => ub.badge_id === badgeId);
   };
 
   // Helper to get metric formatted label
   const getMetricLabel = (m: string) => {
     switch (m) {
-      case 'xp': return 'XP Points';
-      case 'challenges_completed': return 'Challenges Completed';
-      case 'carbon_transactions_logged': return 'Carbon Transactions Logged';
-      case 'csr_activities_completed': return 'CSR Activities Completed';
-      default: return m;
+      case "xp":
+        return "XP Points";
+      case "challenges_completed":
+        return "Challenges Completed";
+      case "carbon_transactions_logged":
+        return "Carbon Transactions Logged";
+      case "csr_activities_completed":
+        return "CSR Activities Completed";
+      default:
+        return m;
     }
   };
 
@@ -152,10 +174,14 @@ export const BadgesPage: React.FC = () => {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
         <div>
           <h2 className="text-2xl font-black text-text-primary m-0 tracking-tight flex items-center space-x-2">
-            <span className="text-[#f08c00]"><Award className="h-6 w-6" /></span>
+            <span className="text-[#f08c00]">
+              <Award className="h-6 w-6" />
+            </span>
             <span>Gamified Badges</span>
           </h2>
-          <p className="text-xs text-text-secondary mt-1">Unlock corporate achievements and track your rule thresholds.</p>
+          <p className="text-xs text-text-secondary mt-1">
+            Unlock corporate achievements and track your rule thresholds.
+          </p>
         </div>
         {isAdmin && (
           <button
@@ -173,45 +199,59 @@ export const BadgesPage: React.FC = () => {
         {badges.map((badge) => {
           const unlock = getUnlockDetails(badge.id);
           const isUnlocked = !!unlock;
-          
+
           // Rule Evaluation details
           const rule = badge.unlock_rule;
           const userVal = userStats[rule.metric] || 0;
           const threshold = rule.value;
-          const percent = isUnlocked ? 100 : Math.max(0, Math.min(100, Math.round((userVal / threshold) * 100)));
+          const percent = isUnlocked
+            ? 100
+            : Math.max(
+                0,
+                Math.min(100, Math.round((userVal / threshold) * 100)),
+              );
 
           return (
             <div key={badge.id} className="relative">
-              <Card 
-                accent={isUnlocked ? 'gamification' : undefined}
-                className={`h-full select-none ${!isUnlocked ? 'opacity-70 bg-surface/50 border-dashed' : ''}`}
+              <Card
+                accent={isUnlocked ? "gamification" : undefined}
+                className={`h-full select-none ${!isUnlocked ? "opacity-70 bg-surface/50 border-dashed" : ""}`}
               >
                 <div className="flex items-start space-x-4 text-left">
                   {/* Badge Icon (scaled/grayed out if locked) */}
-                  <div className={`h-16 w-16 rounded-2xl flex items-center justify-center text-3xl shadow-md border ${
-                    isUnlocked 
-                      ? 'bg-gradient-to-tr from-[#f08c00]/20 to-[#6741d9]/20 border-warning/20 animate-pulse'
-                      : 'bg-border text-text-secondary/40 border-border filter grayscale'
-                  }`}>
-                    {badge.icon || '🏆'}
+                  <div
+                    className={`h-16 w-16 rounded-2xl flex items-center justify-center text-3xl shadow-md border ${
+                      isUnlocked
+                        ? "bg-gradient-to-tr from-[#f08c00]/20 to-[#6741d9]/20 border-warning/20 animate-pulse"
+                        : "bg-border text-text-secondary/40 border-border filter grayscale"
+                    }`}
+                  >
+                    {badge.icon || "🏆"}
                   </div>
 
                   {/* Title & Desc */}
                   <div className="flex-1 space-y-1">
                     <div className="flex items-center justify-between">
-                      <h4 className="font-extrabold text-sm text-text-primary">{badge.name}</h4>
+                      <h4 className="font-extrabold text-sm text-text-primary">
+                        {badge.name}
+                      </h4>
                       {isUnlocked && (
                         <span className="text-[9px] font-black uppercase text-primary bg-primary/10 px-1.5 py-0.5 rounded">
                           Unlocked
                         </span>
                       )}
                     </div>
-                    <p className="text-xs text-text-secondary">{badge.description}</p>
-                    
+                    <p className="text-xs text-text-secondary">
+                      {badge.description}
+                    </p>
+
                     {/* Unlock criteria rule label */}
                     <div className="pt-2 text-[10px] text-text-secondary/50 font-bold flex items-center space-x-1">
                       <span>Goal:</span>
-                      <span className="text-text-secondary">{getMetricLabel(rule.metric)} {rule.operator} {rule.value}</span>
+                      <span className="text-text-secondary">
+                        {getMetricLabel(rule.metric)} {rule.operator}{" "}
+                        {rule.value}
+                      </span>
                     </div>
 
                     {/* Progress slider (only shown if locked) */}
@@ -219,11 +259,13 @@ export const BadgesPage: React.FC = () => {
                       <div className="pt-4 space-y-1.5">
                         <div className="flex items-center justify-between text-[10px] text-text-secondary font-bold">
                           <span>Progress</span>
-                          <span>{userVal} / {threshold} ({percent}%)</span>
+                          <span>
+                            {userVal} / {threshold} ({percent}%)
+                          </span>
                         </div>
                         <div className="w-full h-1.5 bg-border rounded-full overflow-hidden">
-                          <div 
-                            className="bg-[#f08c00] h-full rounded-full transition-all duration-500" 
+                          <div
+                            className="bg-[#f08c00] h-full rounded-full transition-all duration-500"
                             style={{ width: `${percent}%` }}
                           ></div>
                         </div>
@@ -233,7 +275,8 @@ export const BadgesPage: React.FC = () => {
                     {/* Unlocked date */}
                     {isUnlocked && unlock && (
                       <p className="text-[10px] text-text-secondary/40 font-semibold pt-4">
-                        Unlocked on {new Date(unlock.awarded_at).toLocaleDateString()}
+                        Unlocked on{" "}
+                        {new Date(unlock.awarded_at).toLocaleDateString()}
                       </p>
                     )}
                   </div>
@@ -262,7 +305,10 @@ export const BadgesPage: React.FC = () => {
             </div>
 
             {/* Form */}
-            <form onSubmit={handleCreateBadge} className="p-5 space-y-4 text-left">
+            <form
+              onSubmit={handleCreateBadge}
+              className="p-5 space-y-4 text-left"
+            >
               <div>
                 <label className="block text-xs font-bold text-text-secondary uppercase tracking-wider mb-2">
                   Badge Name*
@@ -315,9 +361,15 @@ export const BadgesPage: React.FC = () => {
                     className="w-full px-3 py-2 border border-border rounded-lg bg-base text-xs text-text-primary focus:outline-none focus:ring-1"
                   >
                     <option value="xp">Total XP</option>
-                    <option value="challenges_completed">Challenges Completed</option>
-                    <option value="carbon_transactions_logged">Carbon Transactions Logged</option>
-                    <option value="csr_activities_completed">CSR Activities Completed</option>
+                    <option value="challenges_completed">
+                      Challenges Completed
+                    </option>
+                    <option value="carbon_transactions_logged">
+                      Carbon Transactions Logged
+                    </option>
+                    <option value="csr_activities_completed">
+                      CSR Activities Completed
+                    </option>
                   </select>
                 </div>
               </div>
@@ -356,7 +408,9 @@ export const BadgesPage: React.FC = () => {
               <div className="p-3 bg-warning/5 border border-warning/10 rounded-lg flex items-start space-x-2 text-[10px] text-warning leading-relaxed font-semibold">
                 <AlertTriangle className="h-4 w-4 shrink-0" />
                 <span>
-                  <strong>Note:</strong> Rule evaluates dynamically in the background when users finish challenges. Badges will unlock automatically.
+                  <strong>Note:</strong> Rule evaluates dynamically in the
+                  background when users finish challenges. Badges will unlock
+                  automatically.
                 </span>
               </div>
 

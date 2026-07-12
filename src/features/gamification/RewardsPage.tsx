@@ -1,18 +1,18 @@
-import React, { useEffect, useState } from 'react';
-import { Card } from '../../components/Card';
-import { LoadingSpinner } from '../../components/LoadingSpinner';
-import { ErrorState } from '../../components/ErrorState';
-import { 
-  getRewards, 
-  redeemReward, 
-  getRewardRedemptions, 
-  createReward, 
-  updateReward 
-} from '../../lib/db/rewards';
-import { Reward, RewardRedemption } from '../../lib/types';
-import { toast } from 'react-hot-toast';
-import { ShoppingBag, Sparkles, Plus, X, Package, Ticket } from 'lucide-react';
-import { useAuth } from '../auth/AuthContext';
+import React, { useEffect, useState } from "react";
+import { Card } from "../../components/Card";
+import { LoadingSpinner } from "../../components/LoadingSpinner";
+import { ErrorState } from "../../components/ErrorState";
+import {
+  getRewards,
+  redeemReward,
+  getRewardRedemptions,
+  createReward,
+  updateReward,
+} from "../../lib/db/rewards";
+import { Reward, RewardRedemption } from "../../lib/types";
+import { toast } from "react-hot-toast";
+import { ShoppingBag, Sparkles, Plus, X, Package, Ticket } from "lucide-react";
+import { useAuth } from "../auth/AuthContext";
 
 export const RewardsPage: React.FC = () => {
   const { profile, refreshProfile } = useAuth();
@@ -24,33 +24,33 @@ export const RewardsPage: React.FC = () => {
 
   // Modal State for Admin
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [name, setName] = useState('');
-  const [description, setDescription] = useState('');
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
   const [pointsRequired, setPointsRequired] = useState(100);
   const [stock, setStock] = useState(5);
 
-  const isAdmin = profile?.role === 'admin';
+  const isAdmin = profile?.role === "admin";
   const pointsBalance = profile?.points_balance || 0;
 
   const loadData = async () => {
     try {
       setLoading(true);
       setError(null);
-      
+
       const [rewardsData, redData] = await Promise.all([
         getRewards(),
-        isAdmin 
+        isAdmin
           ? getRewardRedemptions() // Admin sees all
-          : profile 
-          ? getRewardRedemptions(profile.id) // Employee sees own
-          : Promise.resolve([])
+          : profile
+            ? getRewardRedemptions(profile.id) // Employee sees own
+            : Promise.resolve([]),
       ]);
-      
-      setRewards(rewardsData.filter(r => r.status === 'active'));
+
+      setRewards(rewardsData.filter((r) => r.status === "active"));
       setRedemptions(redData);
     } catch (err: any) {
       console.error(err);
-      setError(err.message || 'Failed to load rewards store catalog.');
+      setError(err.message || "Failed to load rewards store catalog.");
     } finally {
       setLoading(false);
     }
@@ -62,38 +62,44 @@ export const RewardsPage: React.FC = () => {
 
   const handleRedeem = async (reward: Reward) => {
     if (!profile) return;
-    
+
     // Invariant #2: Block client side
     if (pointsBalance < reward.points_required) {
-      toast.error('Insufficient points balance.');
+      toast.error("Insufficient points balance.");
       return;
     }
     if (reward.stock <= 0) {
-      toast.error('This reward is out of stock.');
+      toast.error("This reward is out of stock.");
       return;
     }
 
-    if (!window.confirm(`Redeem "${reward.name}" for ${reward.points_required} points?`)) {
+    if (
+      !window.confirm(
+        `Redeem "${reward.name}" for ${reward.points_required} points?`,
+      )
+    ) {
       return;
     }
 
     try {
       setRedeemingId(reward.id);
-      
+
       // Call atomic RPC redemption wrapper (Invariant #2)
       const result = await redeemReward(profile.id, reward.id);
-      
+
       if (result.success) {
-        toast.success(`Successfully redeemed ${reward.name}! Claim instructions sent to your email.`);
+        toast.success(
+          `Successfully redeemed ${reward.name}! Claim instructions sent to your email.`,
+        );
         // Refresh auth profile (to update points balance on Topbar)
         await refreshProfile();
         loadData();
       } else {
-        toast.error(result.error || 'Failed to redeem reward.');
+        toast.error(result.error || "Failed to redeem reward.");
       }
     } catch (err: any) {
       console.error(err);
-      toast.error(err.message || 'Error executing redemption.');
+      toast.error(err.message || "Error executing redemption.");
     } finally {
       setRedeemingId(null);
     }
@@ -102,7 +108,7 @@ export const RewardsPage: React.FC = () => {
   const handleCreateReward = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name || !description || pointsRequired <= 0 || stock < 0) {
-      toast.error('Please enter all required fields.');
+      toast.error("Please enter all required fields.");
       return;
     }
 
@@ -111,17 +117,17 @@ export const RewardsPage: React.FC = () => {
       description,
       points_required: Number(pointsRequired),
       stock: Number(stock),
-      status: 'active' as any
+      status: "active" as any,
     };
 
     try {
       await createReward(payload);
-      toast.success('Reward added to store catalog!');
+      toast.success("Reward added to store catalog!");
       setIsModalOpen(false);
       loadData();
     } catch (err: any) {
       console.error(err);
-      toast.error(err.message || 'Failed to add reward.');
+      toast.error(err.message || "Failed to add reward.");
     }
   };
 
@@ -134,12 +140,17 @@ export const RewardsPage: React.FC = () => {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
         <div>
           <h2 className="text-2xl font-black text-text-primary m-0 tracking-tight flex items-center space-x-2">
-            <span className="text-[#6741d9]"><ShoppingBag className="h-6 w-6" /></span>
+            <span className="text-[#6741d9]">
+              <ShoppingBag className="h-6 w-6" />
+            </span>
             <span>Eco Rewards Store</span>
           </h2>
-          <p className="text-xs text-text-secondary mt-1">Redeem your earned points balance for eco-friendly corporate rewards.</p>
+          <p className="text-xs text-text-secondary mt-1">
+            Redeem your earned points balance for eco-friendly corporate
+            rewards.
+          </p>
         </div>
-        
+
         {isAdmin && (
           <button
             onClick={() => setIsModalOpen(true)}
@@ -160,22 +171,26 @@ export const RewardsPage: React.FC = () => {
 
           return (
             <div key={r.id} className="flex flex-col h-full relative">
-              <Card 
-                accent={isOutOfStock ? undefined : 'secondary'}
+              <Card
+                accent={isOutOfStock ? undefined : "secondary"}
                 className={`flex-grow flex flex-col justify-between text-left ${
-                  isOutOfStock ? 'opacity-60 bg-surface/50 border-dashed' : ''
+                  isOutOfStock ? "opacity-60 bg-surface/50 border-dashed" : ""
                 }`}
               >
                 <div className="space-y-3">
                   {/* Stock Tag */}
                   <div className="flex items-center justify-between">
-                    <span className={`inline-flex items-center px-2 py-0.5 rounded text-[9px] font-black uppercase border ${
-                      isOutOfStock 
-                        ? 'bg-danger/10 text-danger border-danger/10' 
-                        : 'bg-primary/10 text-primary border-primary/10'
-                    }`}>
+                    <span
+                      className={`inline-flex items-center px-2 py-0.5 rounded text-[9px] font-black uppercase border ${
+                        isOutOfStock
+                          ? "bg-danger/10 text-danger border-danger/10"
+                          : "bg-primary/10 text-primary border-primary/10"
+                      }`}
+                    >
                       <Package className="h-2.5 w-2.5 mr-0.5" />
-                      <span>{isOutOfStock ? 'Out of Stock' : `${r.stock} In Stock`}</span>
+                      <span>
+                        {isOutOfStock ? "Out of Stock" : `${r.stock} In Stock`}
+                      </span>
                     </span>
 
                     <span className="text-xs font-black text-[#6741d9] flex items-center space-x-0.5 bg-[#6741d9]/5 px-2 py-0.5 rounded-lg border border-[#6741d9]/10">
@@ -186,8 +201,15 @@ export const RewardsPage: React.FC = () => {
 
                   {/* Body details */}
                   <div className="space-y-1">
-                    <h3 className="text-sm font-extrabold text-text-primary m-0 truncate" title={r.name}>{r.name}</h3>
-                    <p className="text-xs text-text-secondary/80 line-clamp-3 leading-relaxed mt-2">{r.description}</p>
+                    <h3
+                      className="text-sm font-extrabold text-text-primary m-0 truncate"
+                      title={r.name}
+                    >
+                      {r.name}
+                    </h3>
+                    <p className="text-xs text-text-secondary/80 line-clamp-3 leading-relaxed mt-2">
+                      {r.description}
+                    </p>
                   </div>
                 </div>
 
@@ -197,26 +219,24 @@ export const RewardsPage: React.FC = () => {
                     onClick={() => handleRedeem(r)}
                     disabled={cannotRedeem || redeemingId === r.id || isAdmin}
                     className={`w-full py-2 px-3 rounded-lg text-xs font-bold text-center border transition-all active:scale-[0.98] ${
-                      isOutOfStock 
-                        ? 'bg-surface text-text-secondary/40 border-border cursor-not-allowed'
+                      isOutOfStock
+                        ? "bg-surface text-text-secondary/40 border-border cursor-not-allowed"
                         : isInsufficientPoints
-                        ? 'bg-surface text-text-secondary/50 border-border cursor-not-allowed hover:bg-danger/5 hover:text-danger hover:border-danger/10'
-                        : isAdmin
-                        ? 'bg-surface text-text-secondary/40 border-border cursor-not-allowed'
-                        : 'bg-[#6741d9] hover:bg-[#522eb0] text-white border-transparent shadow-sm'
+                          ? "bg-surface text-text-secondary/50 border-border cursor-not-allowed hover:bg-danger/5 hover:text-danger hover:border-danger/10"
+                          : isAdmin
+                            ? "bg-surface text-text-secondary/40 border-border cursor-not-allowed"
+                            : "bg-[#6741d9] hover:bg-[#522eb0] text-white border-transparent shadow-sm"
                     }`}
                   >
-                    {redeemingId === r.id ? (
-                      'Processing...'
-                    ) : isOutOfStock ? (
-                      'Sold Out'
-                    ) : isInsufficientPoints ? (
-                      'Not Enough Points'
-                    ) : isAdmin ? (
-                      'Admin View Only'
-                    ) : (
-                      'Redeem Reward'
-                    )}
+                    {redeemingId === r.id
+                      ? "Processing..."
+                      : isOutOfStock
+                        ? "Sold Out"
+                        : isInsufficientPoints
+                          ? "Not Enough Points"
+                          : isAdmin
+                            ? "Admin View Only"
+                            : "Redeem Reward"}
                   </button>
                 </div>
               </Card>
@@ -226,7 +246,10 @@ export const RewardsPage: React.FC = () => {
       </div>
 
       {/* Redemptions Audit List */}
-      <Card title={isAdmin ? "All Corporate Redemptions" : "Your Redemptions"} subtitle="A record of voucher claims.">
+      <Card
+        title={isAdmin ? "All Corporate Redemptions" : "Your Redemptions"}
+        subtitle="A record of voucher claims."
+      >
         {redemptions.length === 0 ? (
           <div className="text-center py-6 text-xs text-text-secondary/50">
             No redemptions found.
@@ -244,16 +267,27 @@ export const RewardsPage: React.FC = () => {
               </thead>
               <tbody className="divide-y divide-border">
                 {redemptions.map((red) => (
-                  <tr key={red.id} className="hover:bg-surface/30 transition-colors">
+                  <tr
+                    key={red.id}
+                    className="hover:bg-surface/30 transition-colors"
+                  >
                     <td className="py-3.5 px-4 font-semibold text-text-primary">
-                      {new Date(red.redeemed_at).toLocaleDateString()} {new Date(red.redeemed_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      {new Date(red.redeemed_at).toLocaleDateString()}{" "}
+                      {new Date(red.redeemed_at).toLocaleTimeString([], {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
                     </td>
-                    <td className="py-3.5 px-4 font-bold text-text-primary">{red.user_name}</td>
+                    <td className="py-3.5 px-4 font-bold text-text-primary">
+                      {red.user_name}
+                    </td>
                     <td className="py-3.5 px-4 font-medium text-text-primary flex items-center space-x-1">
                       <Ticket className="h-3.5 w-3.5 text-text-secondary/60" />
                       <span>{red.reward_name}</span>
                     </td>
-                    <td className="py-3.5 px-4 text-right font-black text-[#6741d9]">-{red.reward_points_required}</td>
+                    <td className="py-3.5 px-4 text-right font-black text-[#6741d9]">
+                      -{red.reward_points_required}
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -280,7 +314,10 @@ export const RewardsPage: React.FC = () => {
             </div>
 
             {/* Form */}
-            <form onSubmit={handleCreateReward} className="p-5 space-y-4 text-left">
+            <form
+              onSubmit={handleCreateReward}
+              className="p-5 space-y-4 text-left"
+            >
               <div>
                 <label className="block text-xs font-bold text-text-secondary uppercase tracking-wider mb-2">
                   Reward Item Name*

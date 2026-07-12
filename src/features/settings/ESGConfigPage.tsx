@@ -1,16 +1,16 @@
-import React, { useEffect, useState } from 'react';
-import { Card } from '../../components/Card';
-import { LoadingSpinner } from '../../components/LoadingSpinner';
-import { ErrorState } from '../../components/ErrorState';
-import { 
-  getESGConfig, 
-  updateESGConfig, 
-  createESGConfig 
-} from '../../lib/db/esgConfig';
-import { ESGConfig } from '../../lib/types';
-import { toast } from 'react-hot-toast';
-import { Save, ShieldAlert, Sparkles, Scale } from 'lucide-react';
-import { useAuth } from '../auth/AuthContext';
+import React, { useEffect, useState } from "react";
+import { Card } from "../../components/Card";
+import { LoadingSpinner } from "../../components/LoadingSpinner";
+import { ErrorState } from "../../components/ErrorState";
+import {
+  getESGConfig,
+  updateESGConfig,
+  createESGConfig,
+} from "../../lib/db/esgConfig";
+import { ESGConfig } from "../../lib/types";
+import { toast } from "react-hot-toast";
+import { Save, ShieldAlert, Sparkles, Scale } from "lucide-react";
+import { useAuth } from "../auth/AuthContext";
 
 export const ESGConfigPage: React.FC = () => {
   const { profile } = useAuth();
@@ -20,13 +20,13 @@ export const ESGConfigPage: React.FC = () => {
   const [saving, setSaving] = useState(false);
 
   // Form Fields
-  const [orgName, setOrgName] = useState('EcoSphere Corp');
+  const [orgName, setOrgName] = useState("EcoSphere Corp");
   const [envWeight, setEnvWeight] = useState(40);
   const [socWeight, setSocWeight] = useState(30);
   const [govWeight, setGovWeight] = useState(30);
   const [evidenceRequired, setEvidenceRequired] = useState(true);
 
-  const isAdmin = profile?.role === 'admin';
+  const isAdmin = profile?.role === "admin";
 
   const loadData = async () => {
     try {
@@ -46,7 +46,7 @@ export const ESGConfigPage: React.FC = () => {
       }
     } catch (err: any) {
       console.error(err);
-      setError(err.message || 'Failed to load ESG configuration.');
+      setError(err.message || "Failed to load ESG configuration.");
     } finally {
       setLoading(false);
     }
@@ -59,7 +59,7 @@ export const ESGConfigPage: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!isAdmin) {
-      toast.error('Only administrators can modify ESG configurations.');
+      toast.error("Only administrators can modify ESG configurations.");
       return;
     }
 
@@ -76,23 +76,23 @@ export const ESGConfigPage: React.FC = () => {
       environmental_weight: Number(envWeight),
       social_weight: Number(socWeight),
       governance_weight: Number(govWeight),
-      evidence_required: evidenceRequired
+      evidence_required: evidenceRequired,
     };
 
     try {
       if (config) {
         const updated = await updateESGConfig(config.id, payload);
         setConfig(updated);
-        toast.success('ESG Configuration updated successfully!');
+        toast.success("ESG Configuration updated successfully!");
       } else {
         // Create singleton row
         const created = await createESGConfig(payload);
         setConfig(created);
-        toast.success('ESG Configuration created and saved!');
+        toast.success("ESG Configuration created and saved!");
       }
     } catch (err: any) {
       console.error(err);
-      toast.error(err.message || 'Failed to save configuration.');
+      toast.error(err.message || "Failed to save configuration.");
     } finally {
       setSaving(false);
     }
@@ -101,7 +101,8 @@ export const ESGConfigPage: React.FC = () => {
   if (loading) return <LoadingSpinner message="Loading configuration..." />;
   if (error) return <ErrorState message={error} onRetry={loadData} />;
 
-  const sumOfWeights = Number(envWeight) + Number(socWeight) + Number(govWeight);
+  const sumOfWeights =
+    Number(envWeight) + Number(socWeight) + Number(govWeight);
   const isWeightInvalid = sumOfWeights !== 100;
 
   return (
@@ -112,12 +113,19 @@ export const ESGConfigPage: React.FC = () => {
           <span>⚙</span>
           <span>ESG Global Configuration</span>
         </h2>
-        <p className="text-xs text-text-secondary mt-1">Set corporate parameters, ESG score weighting formulas, and CSR evidence rules.</p>
+        <p className="text-xs text-text-secondary mt-1">
+          Set corporate parameters, ESG score weighting formulas, and CSR
+          evidence rules.
+        </p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Core Settings */}
-        <Card title="Corporate Identity" subtitle="Configure organization scope details." accent="primary">
+        <Card
+          title="Corporate Identity"
+          subtitle="Configure organization scope details."
+          accent="primary"
+        >
           <div className="space-y-4">
             <div>
               <label className="block text-xs font-bold text-text-secondary uppercase tracking-wider mb-2">
@@ -137,14 +145,14 @@ export const ESGConfigPage: React.FC = () => {
         </Card>
 
         {/* ESG Pillar Score Weights */}
-        <Card 
+        <Card
           title={
             <div className="flex items-center space-x-2">
               <Scale className="h-4 w-4 text-primary" />
               <span>ESG Score Formula Weights</span>
             </div>
           }
-          subtitle="Determine the mathematical weight (%) contributing to the composite ESG score." 
+          subtitle="Determine the mathematical weight (%) contributing to the composite ESG score."
           accent="governance"
         >
           <div className="space-y-6">
@@ -165,7 +173,9 @@ export const ESGConfigPage: React.FC = () => {
                     onChange={(e) => setEnvWeight(Number(e.target.value))}
                     className="w-full pl-3 pr-8 py-2 border border-border rounded-lg bg-base text-xs text-text-primary font-black focus:outline-none focus:ring-1 focus:ring-primary"
                   />
-                  <span className="absolute right-3 top-2.5 text-xs text-text-secondary/50 font-bold">%</span>
+                  <span className="absolute right-3 top-2.5 text-xs text-text-secondary/50 font-bold">
+                    %
+                  </span>
                 </div>
               </div>
 
@@ -185,7 +195,9 @@ export const ESGConfigPage: React.FC = () => {
                     onChange={(e) => setSocWeight(Number(e.target.value))}
                     className="w-full pl-3 pr-8 py-2 border border-border rounded-lg bg-base text-xs text-text-primary font-black focus:outline-none focus:ring-1 focus:ring-primary"
                   />
-                  <span className="absolute right-3 top-2.5 text-xs text-text-secondary/50 font-bold">%</span>
+                  <span className="absolute right-3 top-2.5 text-xs text-text-secondary/50 font-bold">
+                    %
+                  </span>
                 </div>
               </div>
 
@@ -205,17 +217,21 @@ export const ESGConfigPage: React.FC = () => {
                     onChange={(e) => setGovWeight(Number(e.target.value))}
                     className="w-full pl-3 pr-8 py-2 border border-border rounded-lg bg-base text-xs text-text-primary font-black focus:outline-none focus:ring-1 focus:ring-primary"
                   />
-                  <span className="absolute right-3 top-2.5 text-xs text-text-secondary/50 font-bold">%</span>
+                  <span className="absolute right-3 top-2.5 text-xs text-text-secondary/50 font-bold">
+                    %
+                  </span>
                 </div>
               </div>
             </div>
 
             {/* Sum indicator */}
-            <div className={`p-4 rounded-xl border flex items-center justify-between transition-colors ${
-              isWeightInvalid 
-                ? 'bg-danger/5 border-danger/20 text-danger' 
-                : 'bg-primary/5 border-primary/20 text-primary'
-            }`}>
+            <div
+              className={`p-4 rounded-xl border flex items-center justify-between transition-colors ${
+                isWeightInvalid
+                  ? "bg-danger/5 border-danger/20 text-danger"
+                  : "bg-primary/5 border-primary/20 text-primary"
+              }`}
+            >
               <div className="flex items-center space-x-2 text-xs font-bold uppercase tracking-wide">
                 {isWeightInvalid ? (
                   <ShieldAlert className="h-4 w-4" />
@@ -230,11 +246,20 @@ export const ESGConfigPage: React.FC = () => {
         </Card>
 
         {/* Validation & Security Rules */}
-        <Card title="CSR Compliance Rule" subtitle="Configure challenge and activity validation parameters." accent="warning">
+        <Card
+          title="CSR Compliance Rule"
+          subtitle="Configure challenge and activity validation parameters."
+          accent="warning"
+        >
           <div className="flex items-center justify-between">
             <div className="space-y-1 pr-4">
-              <h4 className="text-xs font-bold text-text-primary uppercase tracking-wider m-0">Evidence Requirement Toggle</h4>
-              <p className="text-xs text-text-secondary">When active, employees cannot be approved for challenges or CSR points without attaching a proof file (e.g. photo upload).</p>
+              <h4 className="text-xs font-bold text-text-primary uppercase tracking-wider m-0">
+                Evidence Requirement Toggle
+              </h4>
+              <p className="text-xs text-text-secondary">
+                When active, employees cannot be approved for challenges or CSR
+                points without attaching a proof file (e.g. photo upload).
+              </p>
             </div>
             <label className="relative inline-flex items-center cursor-pointer select-none">
               <input
@@ -258,7 +283,9 @@ export const ESGConfigPage: React.FC = () => {
               className="inline-flex items-center space-x-2 bg-primary hover:bg-[#2b8a3e] disabled:opacity-50 text-white font-bold py-3 px-6 rounded-lg shadow-md shadow-primary/10 active:scale-[0.98] transition-all text-xs"
             >
               <Save className="h-4 w-4" />
-              <span>{saving ? 'Saving Configurations...' : 'Save Configuration'}</span>
+              <span>
+                {saving ? "Saving Configurations..." : "Save Configuration"}
+              </span>
             </button>
           </div>
         )}

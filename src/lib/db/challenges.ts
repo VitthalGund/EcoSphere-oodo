@@ -1,28 +1,30 @@
-import { supabase } from '../supabase';
-import { Challenge } from '../types';
+import { supabase } from "../supabase";
+import { Challenge } from "../types";
 
 export const getChallenges = async (): Promise<Challenge[]> => {
   const { data, error } = await supabase
-    .from('challenges')
-    .select(`
+    .from("challenges")
+    .select(
+      `
       *,
       categories:category_id(name)
-    `)
-    .order('deadline', { ascending: true });
+    `,
+    )
+    .order("deadline", { ascending: true });
 
   if (error) throw error;
 
   return (data || []).map((item: any) => ({
     ...item,
-    category_name: item.categories?.name || 'Uncategorized'
+    category_name: item.categories?.name || "Uncategorized",
   }));
 };
 
 export const createChallenge = async (
-  challenge: Omit<Challenge, 'id' | 'created_at'>
+  challenge: Omit<Challenge, "id" | "created_at">,
 ): Promise<Challenge> => {
   const { data, error } = await supabase
-    .from('challenges')
+    .from("challenges")
     .insert([challenge])
     .select()
     .single();
@@ -33,12 +35,12 @@ export const createChallenge = async (
 
 export const updateChallenge = async (
   id: string,
-  challenge: Partial<Omit<Challenge, 'id' | 'created_at'>>
+  challenge: Partial<Omit<Challenge, "id" | "created_at">>,
 ): Promise<Challenge> => {
   const { data, error } = await supabase
-    .from('challenges')
+    .from("challenges")
     .update(challenge)
-    .eq('id', id)
+    .eq("id", id)
     .select()
     .single();
 
@@ -48,12 +50,12 @@ export const updateChallenge = async (
 
 export const transitionChallengeStatus = async (
   id: string,
-  newStatus: Challenge['status']
+  newStatus: Challenge["status"],
 ): Promise<Challenge> => {
   const { data, error } = await supabase
-    .from('challenges')
+    .from("challenges")
     .update({ status: newStatus })
-    .eq('id', id)
+    .eq("id", id)
     .select()
     .single();
 

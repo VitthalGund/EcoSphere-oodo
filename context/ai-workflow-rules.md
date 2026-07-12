@@ -1,7 +1,9 @@
 # EcoSphere — AI Workflow Rules
-*How Claude Code (or any AI pair-programmer) should work through this build*
+
+_How Claude Code (or any AI pair-programmer) should work through this build_
 
 ## Read order (do this before writing any code)
+
 1. `context/project-overview.md` — what we're building and why
 2. `context/architecture.md` — data model, invariants, AI integration pattern
 3. `context/ui-context.md` — layout, colors, component conventions
@@ -9,6 +11,7 @@
 5. `context/progress-tracker.md` — what's already done, what's next
 
 ## Build order (do not reorder — each phase produces a demoable checkpoint)
+
 1. **Scaffold + Auth** — Supabase project, schema migration for master data, auth + RBAC, empty
    shell UI matching `ui-context.md` nav structure
 2. **Settings/master data CRUD** — Departments, Categories, Emission Factors (minimum viable forms,
@@ -28,6 +31,7 @@
    Recommender → Proof Vision Check
 
 ## Scoping rules
+
 - If a step is taking meaningfully longer than planned, cut scope within that step (fewer fields,
   simpler UI) rather than skipping ahead to the next step with this one half-broken — a fully
   working narrow slice beats a wide slice full of bugs, every time, for a live judged demo
@@ -38,6 +42,7 @@
   from the Core MVP list in `project-overview.md`
 
 ## When architecture/scope changes mid-build
+
 If an implementation decision changes something documented in `architecture.md`,
 `project-overview.md`, or `code-standards.md` (e.g. you discover the badge rule format needs an
 extra field, or you decide to drop a planned entity), **update that file immediately**, in the same
@@ -45,14 +50,17 @@ commit as the code change — don't let the docs drift from reality. A stale con
 than no context file because the next session will build on wrong assumptions.
 
 ## Progress tracking
+
 After every meaningful change (a build-order step completed, a scope change, a bug found that
 changes a plan), update `context/progress-tracker.md`:
+
 - Move the completed item from "In Progress" to "Done"
 - Note any deviation from the planned architecture/scope and why
 - Update "Next Steps" so the next work session (or teammate) can pick up without re-reading
   everything from scratch
 
 ## Demo-safety rules (specific to this being a live judged demo, not just a shipped product)
+
 - Pre-seed the database with realistic demo data (departments, a few challenges, some carbon
   transactions, a near-unlock badge state) so the demo doesn't start from an empty, unconvincing
   screen

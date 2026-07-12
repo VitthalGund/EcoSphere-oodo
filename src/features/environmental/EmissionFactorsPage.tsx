@@ -1,17 +1,17 @@
-import React, { useEffect, useState } from 'react';
-import { Card } from '../../components/Card';
-import { LoadingSpinner } from '../../components/LoadingSpinner';
-import { ErrorState } from '../../components/ErrorState';
-import { 
-  getEmissionFactors, 
-  createEmissionFactor, 
-  updateEmissionFactor, 
-  deleteEmissionFactor 
-} from '../../lib/db/emissionFactors';
-import { EmissionFactor } from '../../lib/types';
-import { toast } from 'react-hot-toast';
-import { Plus, Search, Edit2, Trash2, X, Leaf } from 'lucide-react';
-import { useAuth } from '../auth/AuthContext';
+import React, { useEffect, useState } from "react";
+import { Card } from "../../components/Card";
+import { LoadingSpinner } from "../../components/LoadingSpinner";
+import { ErrorState } from "../../components/ErrorState";
+import {
+  getEmissionFactors,
+  createEmissionFactor,
+  updateEmissionFactor,
+  deleteEmissionFactor,
+} from "../../lib/db/emissionFactors";
+import { EmissionFactor } from "../../lib/types";
+import { toast } from "react-hot-toast";
+import { Plus, Search, Edit2, Trash2, X, Leaf } from "lucide-react";
+import { useAuth } from "../auth/AuthContext";
 
 export const EmissionFactorsPage: React.FC = () => {
   const { profile } = useAuth();
@@ -20,22 +20,26 @@ export const EmissionFactorsPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
 
   // Filters
-  const [searchTerm, setSearchTerm] = useState('');
-  const [scopeFilter, setScopeFilter] = useState<'all' | 'Scope 1' | 'Scope 2' | 'Scope 3'>('all');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [scopeFilter, setScopeFilter] = useState<
+    "all" | "Scope 1" | "Scope 2" | "Scope 3"
+  >("all");
 
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalAction, setModalAction] = useState<'create' | 'edit'>('create');
-  const [selectedFactor, setSelectedFactor] = useState<EmissionFactor | null>(null);
+  const [modalAction, setModalAction] = useState<"create" | "edit">("create");
+  const [selectedFactor, setSelectedFactor] = useState<EmissionFactor | null>(
+    null,
+  );
 
   // Form Fields
-  const [name, setName] = useState('');
-  const [category, setCategory] = useState('Scope 3');
+  const [name, setName] = useState("");
+  const [category, setCategory] = useState("Scope 3");
   const [factorValue, setFactorValue] = useState<number>(0);
-  const [unit, setUnit] = useState('');
-  const [source, setSource] = useState('');
+  const [unit, setUnit] = useState("");
+  const [source, setSource] = useState("");
 
-  const isAdmin = profile?.role === 'admin';
+  const isAdmin = profile?.role === "admin";
 
   const loadData = async () => {
     try {
@@ -45,7 +49,7 @@ export const EmissionFactorsPage: React.FC = () => {
       setFactors(data);
     } catch (err: any) {
       console.error(err);
-      setError(err.message || 'Failed to load emission factors.');
+      setError(err.message || "Failed to load emission factors.");
     } finally {
       setLoading(false);
     }
@@ -56,31 +60,31 @@ export const EmissionFactorsPage: React.FC = () => {
   }, []);
 
   const openCreateModal = () => {
-    setModalAction('create');
+    setModalAction("create");
     setSelectedFactor(null);
-    setName('');
-    setCategory('Scope 3');
+    setName("");
+    setCategory("Scope 3");
     setFactorValue(0);
-    setUnit('kgCO2e/unit');
-    setSource('');
+    setUnit("kgCO2e/unit");
+    setSource("");
     setIsModalOpen(true);
   };
 
   const openEditModal = (factor: EmissionFactor) => {
-    setModalAction('edit');
+    setModalAction("edit");
     setSelectedFactor(factor);
     setName(factor.name);
     setCategory(factor.category);
     setFactorValue(factor.factor_value);
     setUnit(factor.unit);
-    setSource(factor.source || '');
+    setSource(factor.source || "");
     setIsModalOpen(true);
   };
 
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name || !category || !unit || factorValue < 0) {
-      toast.error('Please fill in all required fields and verify values.');
+      toast.error("Please fill in all required fields and verify values.");
       return;
     }
 
@@ -89,44 +93,51 @@ export const EmissionFactorsPage: React.FC = () => {
       category,
       factor_value: Number(factorValue),
       unit,
-      source: source || null
+      source: source || null,
     };
 
     try {
-      if (modalAction === 'create') {
+      if (modalAction === "create") {
         await createEmissionFactor(payload);
-        toast.success('Emission factor created successfully!');
-      } else if (modalAction === 'edit' && selectedFactor) {
+        toast.success("Emission factor created successfully!");
+      } else if (modalAction === "edit" && selectedFactor) {
         await updateEmissionFactor(selectedFactor.id, payload);
-        toast.success('Emission factor updated successfully!');
+        toast.success("Emission factor updated successfully!");
       }
       setIsModalOpen(false);
       loadData();
     } catch (err: any) {
       console.error(err);
-      toast.error(err.message || 'Failed to save emission factor.');
+      toast.error(err.message || "Failed to save emission factor.");
     }
   };
 
   const handleDeleteFactor = async (id: string) => {
-    if (!window.confirm('Are you sure you want to permanently delete this emission factor? This might affect existing calculations.')) {
+    if (
+      !window.confirm(
+        "Are you sure you want to permanently delete this emission factor? This might affect existing calculations.",
+      )
+    ) {
       return;
     }
 
     try {
       await deleteEmissionFactor(id);
-      toast.success('Emission factor deleted.');
+      toast.success("Emission factor deleted.");
       loadData();
     } catch (err: any) {
       console.error(err);
-      toast.error(err.message || 'Failed to delete emission factor.');
+      toast.error(err.message || "Failed to delete emission factor.");
     }
   };
 
   // Filters
-  const filteredFactors = factors.filter(factor => {
-    const matchesSearch = factor.name.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesScope = scopeFilter === 'all' || factor.category === scopeFilter;
+  const filteredFactors = factors.filter((factor) => {
+    const matchesSearch = factor.name
+      .toLowerCase()
+      .includes(searchTerm.toLowerCase());
+    const matchesScope =
+      scopeFilter === "all" || factor.category === scopeFilter;
 
     return matchesSearch && matchesScope;
   });
@@ -140,10 +151,15 @@ export const EmissionFactorsPage: React.FC = () => {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
         <div>
           <h2 className="text-2xl font-black text-text-primary m-0 tracking-tight flex items-center space-x-2">
-            <span className="text-primary"><Leaf className="h-6 w-6" /></span>
+            <span className="text-primary">
+              <Leaf className="h-6 w-6" />
+            </span>
             <span>Emission Factors Ledger</span>
           </h2>
-          <p className="text-xs text-text-secondary mt-1">Configure carbon multipliers (CO₂e) per emission category (Scope 1/2/3).</p>
+          <p className="text-xs text-text-secondary mt-1">
+            Configure carbon multipliers (CO₂e) per emission category (Scope
+            1/2/3).
+          </p>
         </div>
         {isAdmin && (
           <button
@@ -169,10 +185,12 @@ export const EmissionFactorsPage: React.FC = () => {
             className="w-full pl-9 pr-4 py-2 border border-border rounded-lg bg-base text-xs text-text-primary placeholder:text-text-secondary/50 focus:outline-none focus:ring-1 focus:ring-primary focus:border-transparent transition-all"
           />
         </div>
-        
+
         {/* Scope Filter */}
         <div className="flex items-center space-x-2">
-          <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Classification:</label>
+          <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">
+            Classification:
+          </label>
           <select
             value={scopeFilter}
             onChange={(e) => setScopeFilter(e.target.value as any)}
@@ -180,7 +198,9 @@ export const EmissionFactorsPage: React.FC = () => {
           >
             <option value="all">All Scopes</option>
             <option value="Scope 1">Scope 1 (Direct Emissions)</option>
-            <option value="Scope 2">Scope 2 (Indirect - Purchased Energy)</option>
+            <option value="Scope 2">
+              Scope 2 (Indirect - Purchased Energy)
+            </option>
             <option value="Scope 3">Scope 3 (Value Chain / Other)</option>
           </select>
         </div>
@@ -191,7 +211,9 @@ export const EmissionFactorsPage: React.FC = () => {
         {filteredFactors.length === 0 ? (
           <div className="text-center py-12 space-y-3">
             <div className="text-4xl text-text-secondary/30">🌿</div>
-            <p className="text-sm font-bold text-text-secondary">No emission factors found matching filter parameters.</p>
+            <p className="text-sm font-bold text-text-secondary">
+              No emission factors found matching filter parameters.
+            </p>
           </div>
         ) : (
           <div className="overflow-x-auto">
@@ -203,23 +225,30 @@ export const EmissionFactorsPage: React.FC = () => {
                   <th className="py-3.5 px-4 text-right">Value (CO₂e)</th>
                   <th className="py-3.5 px-4">Unit</th>
                   <th className="py-3.5 px-4">Data Source</th>
-                  {isAdmin && <th className="py-3.5 px-4 text-right">Actions</th>}
+                  {isAdmin && (
+                    <th className="py-3.5 px-4 text-right">Actions</th>
+                  )}
                 </tr>
               </thead>
               <tbody className="divide-y divide-border text-xs">
                 {filteredFactors.map((factor) => (
-                  <tr key={factor.id} className="hover:bg-surface/30 transition-colors">
+                  <tr
+                    key={factor.id}
+                    className="hover:bg-surface/30 transition-colors"
+                  >
                     <td className="py-4 px-4 font-bold text-text-primary">
                       {factor.name}
                     </td>
                     <td className="py-4 px-4">
-                      <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold border ${
-                        factor.category === 'Scope 1' 
-                          ? 'bg-danger/10 text-danger border-danger/10'
-                          : factor.category === 'Scope 2'
-                          ? 'bg-[#1971c2]/10 text-[#1971c2] border-[#1971c2]/10'
-                          : 'bg-primary/10 text-primary border-primary/10'
-                      }`}>
+                      <span
+                        className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold border ${
+                          factor.category === "Scope 1"
+                            ? "bg-danger/10 text-danger border-danger/10"
+                            : factor.category === "Scope 2"
+                              ? "bg-[#1971c2]/10 text-[#1971c2] border-[#1971c2]/10"
+                              : "bg-primary/10 text-primary border-primary/10"
+                        }`}
+                      >
                         {factor.category}
                       </span>
                     </td>
@@ -230,7 +259,7 @@ export const EmissionFactorsPage: React.FC = () => {
                       {factor.unit}
                     </td>
                     <td className="py-4 px-4 text-text-secondary/60 font-medium italic">
-                      {factor.source || 'Standard Reference'}
+                      {factor.source || "Standard Reference"}
                     </td>
                     {isAdmin && (
                       <td className="py-4 px-4 text-right space-x-2">
@@ -265,7 +294,9 @@ export const EmissionFactorsPage: React.FC = () => {
             {/* Header */}
             <div className="p-5 border-b border-border flex items-center justify-between">
               <h3 className="text-sm font-bold text-text-primary uppercase tracking-widest">
-                {modalAction === 'create' ? 'Add New Emission Factor' : 'Edit Emission Factor'}
+                {modalAction === "create"
+                  ? "Add New Emission Factor"
+                  : "Edit Emission Factor"}
               </h3>
               <button
                 onClick={() => setIsModalOpen(false)}
@@ -276,7 +307,10 @@ export const EmissionFactorsPage: React.FC = () => {
             </div>
 
             {/* Form */}
-            <form onSubmit={handleFormSubmit} className="p-5 space-y-4 text-left">
+            <form
+              onSubmit={handleFormSubmit}
+              className="p-5 space-y-4 text-left"
+            >
               <div>
                 <label className="block text-xs font-bold text-text-secondary uppercase tracking-wider mb-2">
                   Factor Name*
@@ -363,7 +397,7 @@ export const EmissionFactorsPage: React.FC = () => {
                   type="submit"
                   className="px-4 py-2 bg-primary hover:bg-[#2b8a3e] text-white border border-transparent rounded-lg text-xs font-bold shadow-md shadow-primary/10 transition-colors"
                 >
-                  {modalAction === 'create' ? 'Create' : 'Save Changes'}
+                  {modalAction === "create" ? "Create" : "Save Changes"}
                 </button>
               </div>
             </form>

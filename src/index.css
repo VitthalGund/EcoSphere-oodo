@@ -1,12 +1,12 @@
 @import "tailwindcss";
 
 @theme {
-  --color-primary: #2f9e44;        /* Environmental / primary CTAs */
-  --color-governance: #1971c2;     /* Governance / links / info */
-  --color-warning: #e8590c;        /* Alerts / accent */
-  --color-danger: #e03131;         /* Error / rejected / overdue */
-  --color-gamification: #f08c00;   /* XP / badges / rewards */
-  --color-secondary: #6741d9;      /* Level-up / highlights */
+  --color-primary: #2f9e44; /* Environmental / primary CTAs */
+  --color-governance: #1971c2; /* Governance / links / info */
+  --color-warning: #e8590c; /* Alerts / accent */
+  --color-danger: #e03131; /* Error / rejected / overdue */
+  --color-gamification: #f08c00; /* XP / badges / rewards */
+  --color-secondary: #6741d9; /* Level-up / highlights */
   --color-text-primary: #343a40;
   --color-text-secondary: #495057;
   --color-border: #dee2e6;
@@ -18,7 +18,11 @@
   body {
     background-color: var(--color-surface);
     color: var(--color-text-primary);
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-family:
+      "Inter",
+      system-ui,
+      -apple-system,
+      sans-serif;
     margin: 0;
   }
 }

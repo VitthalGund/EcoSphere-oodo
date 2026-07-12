@@ -1,28 +1,30 @@
-import { supabase } from '../supabase';
-import { EnvironmentalGoal } from '../types';
+import { supabase } from "../supabase";
+import { EnvironmentalGoal } from "../types";
 
 export const getEnvironmentalGoals = async (): Promise<EnvironmentalGoal[]> => {
   const { data, error } = await supabase
-    .from('environmental_goals')
-    .select(`
+    .from("environmental_goals")
+    .select(
+      `
       *,
       departments:department_id(name)
-    `)
-    .order('deadline', { ascending: true });
+    `,
+    )
+    .order("deadline", { ascending: true });
 
   if (error) throw error;
-  
+
   return (data || []).map((item: any) => ({
     ...item,
-    department_name: item.departments?.name || 'Unknown Department'
+    department_name: item.departments?.name || "Unknown Department",
   }));
 };
 
 export const createEnvironmentalGoal = async (
-  goal: Omit<EnvironmentalGoal, 'id' | 'created_at'>
+  goal: Omit<EnvironmentalGoal, "id" | "created_at">,
 ): Promise<EnvironmentalGoal> => {
   const { data, error } = await supabase
-    .from('environmental_goals')
+    .from("environmental_goals")
     .insert([goal])
     .select()
     .single();
@@ -33,12 +35,12 @@ export const createEnvironmentalGoal = async (
 
 export const updateEnvironmentalGoal = async (
   id: string,
-  goal: Partial<Omit<EnvironmentalGoal, 'id' | 'created_at'>>
+  goal: Partial<Omit<EnvironmentalGoal, "id" | "created_at">>,
 ): Promise<EnvironmentalGoal> => {
   const { data, error } = await supabase
-    .from('environmental_goals')
+    .from("environmental_goals")
     .update(goal)
-    .eq('id', id)
+    .eq("id", id)
     .select()
     .single();
 
@@ -48,9 +50,9 @@ export const updateEnvironmentalGoal = async (
 
 export const deleteEnvironmentalGoal = async (id: string): Promise<void> => {
   const { error } = await supabase
-    .from('environmental_goals')
+    .from("environmental_goals")
     .delete()
-    .eq('id', id);
+    .eq("id", id);
 
   if (error) throw error;
 };

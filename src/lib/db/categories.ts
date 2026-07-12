@@ -1,19 +1,21 @@
-import { supabase } from '../supabase';
-import { Category } from '../types';
+import { supabase } from "../supabase";
+import { Category } from "../types";
 
 export const getCategories = async (): Promise<Category[]> => {
   const { data, error } = await supabase
-    .from('categories')
-    .select('*')
-    .order('name', { ascending: true });
+    .from("categories")
+    .select("*")
+    .order("name", { ascending: true });
 
   if (error) throw error;
   return data || [];
 };
 
-export const createCategory = async (category: Omit<Category, 'id' | 'created_at'>): Promise<Category> => {
+export const createCategory = async (
+  category: Omit<Category, "id" | "created_at">,
+): Promise<Category> => {
   const { data, error } = await supabase
-    .from('categories')
+    .from("categories")
     .insert([category])
     .select()
     .single();
@@ -22,11 +24,14 @@ export const createCategory = async (category: Omit<Category, 'id' | 'created_at
   return data;
 };
 
-export const updateCategory = async (id: string, category: Partial<Omit<Category, 'id' | 'created_at'>>): Promise<Category> => {
+export const updateCategory = async (
+  id: string,
+  category: Partial<Omit<Category, "id" | "created_at">>,
+): Promise<Category> => {
   const { data, error } = await supabase
-    .from('categories')
+    .from("categories")
     .update(category)
-    .eq('id', id)
+    .eq("id", id)
     .select()
     .single();
 
@@ -37,9 +42,9 @@ export const updateCategory = async (id: string, category: Partial<Omit<Category
 export const deleteCategory = async (id: string): Promise<void> => {
   // Soft delete
   const { error } = await supabase
-    .from('categories')
-    .update({ status: 'inactive' })
-    .eq('id', id);
+    .from("categories")
+    .update({ status: "inactive" })
+    .eq("id", id);
 
   if (error) throw error;
 };

@@ -1,12 +1,14 @@
 # EcoSphere — Progress Tracker
 
-*Update this file after every meaningful implementation change. Keep entries short — this is a
-working log, not documentation.*
+_Update this file after every meaningful implementation change. Keep entries short — this is a
+working log, not documentation._
 
 ## Current phase
+
 **Phase 6 Completed — AI Emission Classifier (full client service calling Gemini API and local Ollama fallback, with confirmable and editable review panels in the carbon ledger) is fully functional. Ready for Phase 7: Shallow Social & Governance CRUD.**
 
 ## Done
+
 - [x] PS selected: EcoSphere (over TransitOps, AssetFlow) — see `research/EcoSphere_Deep_Dive_Research.md`
 - [x] Competitor teardown, gap analysis, personas, feature ideas, MVP scope completed
 - [x] Context files written (`project-overview.md`, `architecture.md`, `ui-context.md`,
@@ -19,26 +21,25 @@ working log, not documentation.*
 - [x] Phase 6: AI Emission Classifier (structured classification using Gemini API with local Ollama fallback, featuring audit verification UI)
 
 ## In Progress
+
 - [ ] Phase 7: Shallow Social + Governance CRUD
 
 ## Not Started (in build order — see `ai-workflow-rules.md`)
+
 - [ ] Phase 8: Stretch features (Score Copilot → NL Report Builder → Recommender → Vision Check)
 
 ## Open questions / decisions needed
-- *(All resolved: Supabase backend, solo build, Tailwind v4, Gemini API with Ollama fallback)*
+
+- _(All resolved: Supabase backend, solo build, Tailwind v4, Gemini API with Ollama fallback)_
 
 ## Deviations from plan
-*(none yet)*
+
+_(none yet)_
 
 ## Next steps
+
 1. Implement Social CRUD queries for CSR Activities and volunteer participations.
 2. Build CSR Activities Catalog page with sign-up trigger and volunteer log trackers.
 3. Implement Governance CRUD queries for ESG Policies and Acknowledgements.
 4. Build Policy documentation reader with sign-off buttons and progress audit tables.
 5. Map Phase 7 routes in `src/App.tsx`.
-
-
-
-
-
-
