@@ -10,6 +10,7 @@ import {
   MapPin, 
   Globe
 } from 'lucide-react';
+import { PublicNavBar } from '../components/PublicNavBar';
 import logoImg from '../assets/logo.png';
 
 const GithubIcon: React.FC<{ className?: string }> = ({ className }) => (
@@ -71,37 +72,7 @@ export const AboutPage: React.FC = () => {
       <div className="absolute bottom-1/3 right-1/4 w-[400px] h-[400px] bg-[#6741d9]/5 rounded-full blur-3xl pointer-events-none" />
 
       {/* Navigation Header */}
-      <nav className="border-b border-white/5 bg-[#060e20]/80 backdrop-blur-md sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-          <Link to="/" className="flex items-center space-x-3 hover:opacity-90">
-            <img src={logoImg} alt="EcoSphere Logo" className="h-8 w-8 object-contain" />
-            <span className="text-lg font-black tracking-tight text-white font-mono">
-              EcoSphere
-            </span>
-          </Link>
-
-          <div className="hidden md:flex items-center space-x-8 text-xs font-bold uppercase tracking-wider text-slate-400">
-            <Link to="/" className="hover:text-white transition-colors">Home</Link>
-            <Link to="/#features" className="hover:text-white transition-colors">Features</Link>
-            <span className="text-white">About Us</span>
-          </div>
-
-          <div className="flex items-center space-x-4">
-            <Link 
-              to="/login" 
-              className="text-xs font-bold uppercase tracking-wider text-slate-300 hover:text-white transition-colors"
-            >
-              Sign In
-            </Link>
-            <Link 
-              to="/login" 
-              className="inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-[#10b981] to-[#057a55] text-white font-bold text-xs uppercase tracking-wider rounded-lg hover:shadow-lg hover:shadow-[#10b981]/20 active:scale-95 transition-all"
-            >
-              Request Demo
-            </Link>
-          </div>
-        </div>
-      </nav>
+      <PublicNavBar />
 
       {/* Mission / Header Section */}
       <header className="max-w-4xl mx-auto px-6 pt-20 pb-16 text-center space-y-6">

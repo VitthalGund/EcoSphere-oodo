@@ -10,12 +10,9 @@ import {
   CheckCircle, 
   MessageSquare, 
   ChevronDown, 
-  ChevronUp, 
-  Users, 
-  TrendingUp, 
-  Globe 
+  ChevronUp 
 } from 'lucide-react';
-import logoImg from '../assets/logo.png';
+import { PublicNavBar } from '../components/PublicNavBar';
 
 export const LandingPage: React.FC = () => {
   const navigate = useNavigate();
@@ -52,38 +49,7 @@ export const LandingPage: React.FC = () => {
       <div className="absolute top-1/3 right-1/4 w-[500px] h-[500px] bg-[#6741d9]/5 rounded-full blur-3xl pointer-events-none" />
 
       {/* Navigation Header */}
-      <nav className="border-b border-white/5 bg-[#060e20]/80 backdrop-blur-md sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <img src={logoImg} alt="EcoSphere Logo" className="h-8 w-8 object-contain" />
-            <span className="text-lg font-black tracking-tight text-white font-mono">
-              EcoSphere
-            </span>
-          </div>
-
-          <div className="hidden md:flex items-center space-x-8 text-xs font-bold uppercase tracking-wider text-slate-400">
-            <a href="#features" className="hover:text-white transition-colors">Features</a>
-            <a href="#solutions" className="hover:text-white transition-colors">Solutions</a>
-            <Link to="/about" className="hover:text-white transition-colors">About Us</Link>
-            <a href="#faqs" className="hover:text-white transition-colors">FAQs</a>
-          </div>
-
-          <div className="flex items-center space-x-4">
-            <Link 
-              to="/login" 
-              className="text-xs font-bold uppercase tracking-wider text-slate-300 hover:text-white transition-colors"
-            >
-              Sign In
-            </Link>
-            <Link 
-              to="/login" 
-              className="inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-[#10b981] to-[#057a55] text-white font-bold text-xs uppercase tracking-wider rounded-lg hover:shadow-lg hover:shadow-[#10b981]/20 active:scale-95 transition-all"
-            >
-              Request Demo
-            </Link>
-          </div>
-        </div>
-      </nav>
+      <PublicNavBar />
 
       {/* Hero Section */}
       <header className="max-w-7xl mx-auto px-6 pt-20 pb-16 text-center space-y-8 relative">

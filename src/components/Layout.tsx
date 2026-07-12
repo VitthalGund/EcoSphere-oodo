@@ -26,7 +26,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({
         <Topbar onMenuClick={() => setIsSidebarOpen(!isSidebarOpen)} />
 
         {/* Content Canvas */}
-        <main className="flex-grow pt-16 p-4 md:p-8 overflow-y-auto">
+        <main className="flex-grow p-4 pt-20 md:p-8 md:pt-24 overflow-y-auto">
           <div className="mx-auto max-w-7xl animate-fade-in">{children}</div>
         </main>
       </div>
