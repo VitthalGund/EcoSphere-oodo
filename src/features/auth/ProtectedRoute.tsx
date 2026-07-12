@@ -2,6 +2,7 @@ import React from "react";
 import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "./AuthContext";
 import { UserRole } from "../../lib/types";
+import { supabase } from "../../lib/supabase";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -31,6 +32,48 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   if (!user) {
     // Redirect to login but save the current location so they can return
     return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
+  if (!profile) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center bg-surface p-6">
+        <div className="w-full max-w-md text-center bg-base p-8 rounded-xl border border-border shadow-md">
+          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-danger/10 text-danger mb-4">
+            <svg
+              className="h-6 w-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+              />
+            </svg>
+          </div>
+          <h2 className="text-xl font-bold text-text-primary">
+            Profile Incomplete
+          </h2>
+          <p className="mt-2 text-sm text-text-secondary">
+            Your user profile could not be loaded. Please contact an administrator to resolve your account status.
+          </p>
+          <div className="mt-6">
+            <button
+              onClick={() => {
+                supabase.auth.signOut().then(() => {
+                  window.location.href = '/login';
+                });
+              }}
+              className="inline-flex justify-center rounded-lg border border-border bg-base px-4 py-2 text-sm font-medium text-text-primary hover:bg-surface transition-colors"
+            >
+              Sign Out
+            </button>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   if (allowedRoles && profile && !allowedRoles.includes(profile.role)) {

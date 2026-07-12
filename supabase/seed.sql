@@ -54,10 +54,10 @@ ON CONFLICT (id) DO NOTHING;
 
 -- 6. Seed Rewards
 INSERT INTO public.rewards (id, name, description, points_required, stock, status) VALUES
-('r1111111-1111-1111-1111-111111111111', 'Extra Day Off', 'Get one paid day off for your sustainability efforts', 500, 3, 'active'),
-('r2222222-2222-2222-2222-222222222222', 'Eco Swag Box', 'Organic cotton t-shirt, bamboo bottle, and metal straw kit', 200, 10, 'active'),
-('r3333333-3333-3333-3333-333333333333', 'Premium Coffee Voucher', 'Free coffee at the local sustainable cafe', 50, 20, 'active'),
-('r4444444-4444-4444-4444-444444444444', 'Plant a Tree in Your Name', 'Partner with OneTreePlanted to grow a tree in a deforestation zone', 100, 999, 'active')
+('91111111-1111-1111-1111-111111111111', 'Extra Day Off', 'Get one paid day off for your sustainability efforts', 500, 3, 'active'),
+('92222222-2222-2222-2222-222222222222', 'Eco Swag Box', 'Organic cotton t-shirt, bamboo bottle, and metal straw kit', 200, 10, 'active'),
+('93333333-3333-3333-3333-333333333333', 'Premium Coffee Voucher', 'Free coffee at the local sustainable cafe', 50, 20, 'active'),
+('94444444-4444-4444-4444-444444444444', 'Plant a Tree in Your Name', 'Partner with OneTreePlanted to grow a tree in a deforestation zone', 100, 999, 'active')
 ON CONFLICT (id) DO NOTHING;
 
 -- 7. Seed Auth Demo Users (syncs to public.users via trigger)
@@ -77,7 +77,7 @@ INSERT INTO auth.users (
   updated_at
 ) VALUES 
 (
-  'u1111111-1111-1111-1111-111111111111',
+  '11111111-1111-1111-1111-111111111111',
   '00000000-0000-0000-0000-000000000000',
   'authenticated',
   'authenticated',
@@ -90,7 +90,7 @@ INSERT INTO auth.users (
   now()
 ),
 (
-  'u2222222-2222-2222-2222-222222222222',
+  '22222222-2222-2222-2222-222222222222',
   '00000000-0000-0000-0000-000000000000',
   'authenticated',
   'authenticated',
@@ -103,7 +103,7 @@ INSERT INTO auth.users (
   now()
 ),
 (
-  'u3333333-3333-3333-3333-333333333333',
+  '33333333-3333-3333-3333-333333333333',
   '00000000-0000-0000-0000-000000000000',
   'authenticated',
   'authenticated',

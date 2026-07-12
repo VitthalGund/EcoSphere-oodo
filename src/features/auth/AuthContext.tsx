@@ -24,16 +24,48 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const fetchProfile = async (userId: string) => {
+  const fetchProfile = async (currentUser: User) => {
     try {
       const { data, error } = await supabase
         .from("users")
         .select("*")
-        .eq("id", userId)
+        .eq("id", currentUser.id)
         .single();
 
       if (error) {
         console.error("Error fetching user profile:", error.message);
+        
+        // Self-heal: If profile doesn't exist, try creating it from auth metadata
+        if (error.code === 'PGRST116') {
+          console.log("Profile not found. Attempting to self-heal and create profile...");
+          let deptId = currentUser.user_metadata?.department_id;
+          if (!deptId || deptId.trim() === '') deptId = null;
+
+          const { data: newData, error: insertErr } = await supabase
+            .from('users')
+            .insert({
+              id: currentUser.id,
+              email: currentUser.email || '',
+              name: currentUser.user_metadata?.name || currentUser.email?.split('@')[0] || 'User',
+              role: currentUser.user_metadata?.role || 'employee',
+              department_id: deptId,
+              xp: 0,
+              level: 1,
+              points_balance: 0,
+              avatar_url: currentUser.user_metadata?.avatar_url || null
+            })
+            .select()
+            .single();
+            
+          if (!insertErr && newData) {
+            console.log("Profile successfully recovered!");
+            setProfile(newData as UserProfile);
+            return;
+          } else {
+             console.error("Failed to self-heal profile:", insertErr);
+          }
+        }
+        
         setProfile(null);
       } else {
         setProfile(data as UserProfile);
@@ -46,7 +78,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const refreshProfile = async () => {
     if (user) {
-      await fetchProfile(user.id);
+      await fetchProfile(user);
     }
   };
 
@@ -56,7 +88,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       const currentUser = session?.user ?? null;
       setUser(currentUser);
       if (currentUser) {
-        fetchProfile(currentUser.id).finally(() => setLoading(false));
+        fetchProfile(currentUser).finally(() => setLoading(false));
       } else {
         setProfile(null);
         setLoading(false);
@@ -71,7 +103,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       setUser(currentUser);
       if (currentUser) {
         setLoading(true);
-        await fetchProfile(currentUser.id);
+        await fetchProfile(currentUser);
         setLoading(false);
       } else {
         setProfile(null);
@@ -86,50 +118,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const signIn = async (email: string, password: string) => {
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
+      const { error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
-
-      if (error && (email === 'priya@ecosphere.com' || email === 'meera@ecosphere.com' || email === 'raj@ecosphere.com')) {
-        let role = 'employee';
-        let name = 'Raj';
-        let department_id = 'd4444444-4444-4444-4444-444444444444'; // Operations
-
-        if (email === 'priya@ecosphere.com') {
-          role = 'admin';
-          name = 'Priya';
-          department_id = 'd1111111-1111-1111-1111-111111111111'; // IT
-        } else if (email === 'meera@ecosphere.com') {
-          role = 'department_head';
-          name = 'Meera';
-          department_id = 'd2222222-2222-2222-2222-222222222222'; // Sales
-        }
-
-        console.log("Demo user not found in Auth. Auto-registering...", email);
-        const signUpRes = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            data: {
-              role,
-              name,
-              department_id
-            }
-          }
-        });
-
-        if (!signUpRes.error) {
-          const retryRes = await supabase.auth.signInWithPassword({
-            email,
-            password,
-          });
-          return { error: retryRes.error };
-        } else {
-          return { error: signUpRes.error };
-        }
-      }
-
       return { error };
     } catch (err: any) {
       return { error: err };
