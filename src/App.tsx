@@ -24,6 +24,12 @@ import { BadgesPage } from "./features/gamification/BadgesPage";
 import { RewardsPage } from "./features/gamification/RewardsPage";
 import { LeaderboardPage } from "./features/gamification/LeaderboardPage";
 
+// Phase 7 real page imports
+import { CSRActivitiesPage } from "./features/social/CSRActivitiesPage";
+import { CSRParticipationsPage } from "./features/social/CSRParticipationsPage";
+import { PoliciesPage } from "./features/governance/PoliciesPage";
+import { AcknowledgementsPage } from "./features/governance/AcknowledgementsPage";
+
 function App() {
   return (
     <AuthProvider>
@@ -92,7 +98,7 @@ function App() {
             element={
               <ProtectedRoute>
                 <Layout>
-                  <PlaceholderPage title="CSR Activities Catalog" />
+                  <CSRActivitiesPage />
                 </Layout>
               </ProtectedRoute>
             }
@@ -102,7 +108,7 @@ function App() {
             element={
               <ProtectedRoute>
                 <Layout>
-                  <PlaceholderPage title="Employee CSR Participation" />
+                  <CSRParticipationsPage />
                 </Layout>
               </ProtectedRoute>
             }
@@ -114,7 +120,7 @@ function App() {
             element={
               <ProtectedRoute>
                 <Layout>
-                  <PlaceholderPage title="ESG Policies Docs" />
+                  <PoliciesPage />
                 </Layout>
               </ProtectedRoute>
             }
@@ -124,7 +130,7 @@ function App() {
             element={
               <ProtectedRoute>
                 <Layout>
-                  <PlaceholderPage title="Policy Acknowledgements" />
+                  <AcknowledgementsPage />
                 </Layout>
               </ProtectedRoute>
             }

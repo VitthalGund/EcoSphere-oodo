@@ -9,14 +9,9 @@ import {
   PieChart, 
   Pie, 
   Cell, 
-  ResponsiveContainer, 
-  RadarChart, 
-  PolarGrid, 
-  PolarAngleAxis, 
-  PolarRadiusAxis, 
-  Radar 
+  ResponsiveContainer 
 } from 'recharts';
-import { Scale, Leaf, Heart, Shield, Sparkles, TrendingUp, HelpCircle, ChevronRight, Award } from 'lucide-react';
+import { Scale, Leaf, Heart, Shield, Sparkles, TrendingUp, ChevronRight, BrainCircuit, X, MessageSquareQuote } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { Link } from 'react-router-dom';
 
@@ -30,6 +25,11 @@ export const DashboardPage: React.FC = () => {
   // Selected gauge segment
   const [selectedPillar, setSelectedPillar] = useState<'env' | 'soc' | 'gov' | 'total'>('total');
 
+  // Copilot Advisory State
+  const [isCopilotOpen, setIsCopilotOpen] = useState(false);
+  const [copilotLoading, setCopilotLoading] = useState(false);
+  const [copilotResponse, setCopilotResponse] = useState<string | null>(null);
+
   const loadData = async () => {
     try {
       setLoading(true);
@@ -37,10 +37,10 @@ export const DashboardPage: React.FC = () => {
 
       const period = '2026-07';
 
-      // 1. Recalculate scores to make sure they are up-to-date
+      // 1. Recalculate scores
       await recalculateAllScores(period);
 
-      // 2. Fetch org-wide score (department_id is null)
+      // 2. Fetch org score
       const { data: orgData, error: orgErr } = await supabase
         .from('department_scores')
         .select('*')
@@ -99,10 +99,74 @@ export const DashboardPage: React.FC = () => {
     loadData();
   }, []);
 
+  const askEsgCopilot = async () => {
+    try {
+      setCopilotLoading(true);
+      setCopilotResponse(null);
+      setIsCopilotOpen(true);
+
+      const geminiKey = import.meta.env.VITE_GEMINI_API_KEY;
+      const prompt = `You are a corporate ESG Advisor.
+Analyze the following score changes for our organization:
+- Last Month Index (Baseline): Env: 72, Soc: 80, Gov: 75, Total: 75
+- This Month Index: Env: ${envScore}, Soc: ${socScore}, Gov: ${govScore}, Total: ${totalScore}
+- Active weights: Env: ${envW}%, Soc: ${socW}%, Gov: ${govW}%
+
+Explain in 3 short, professional paragraphs:
+1. Why the composite total score changed.
+2. The specific driver (e.g. carbon log changes or compliance sign-offs).
+3. Two actionable recommendations to improve scores next month.
+
+Format in clean bullet points where appropriate. Use concise corporate language.`;
+
+      let responseText = "";
+      if (geminiKey && geminiKey.trim() !== "") {
+        try {
+          const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${geminiKey}`;
+          const res = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+          });
+          if (res.ok) {
+            const data = await res.json();
+            responseText = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
+          }
+        } catch (e) {
+          console.warn("Gemini copilot failed, trying local Ollama fallback...", e);
+        }
+      }
+
+      if (!responseText) {
+        // Fallback to local Ollama (qwen2.5-coder:7b is installed)
+        const url = 'http://localhost:11434/api/generate';
+        const res = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            model: 'qwen2.5-coder:7b',
+            prompt: prompt,
+            stream: false
+          })
+        });
+        if (res.ok) {
+          const data = await res.json();
+          responseText = data.response || "";
+        }
+      }
+
+      setCopilotResponse(responseText || "Sorry, I could not generate score analysis at this time.");
+    } catch (err: any) {
+      console.error(err);
+      setCopilotResponse("AI Copilot is currently offline. Please verify that your local Ollama server is running at localhost:11434.");
+    } finally {
+      setCopilotLoading(false);
+    }
+  };
+
   if (loading) return <LoadingSpinner message="Calculating organization ESG indexes..." />;
   if (error) return <ErrorState message={error} onRetry={loadData} />;
 
-  // Dynamic values
   const envScore = orgScore?.environmental_score || 0;
   const socScore = orgScore?.social_score || 0;
   const govScore = orgScore?.governance_score || 0;
@@ -112,7 +176,6 @@ export const DashboardPage: React.FC = () => {
   const socW = weights?.social_weight || 30;
   const govW = weights?.governance_weight || 30;
 
-  // Grade rating
   const getEsgGrade = (score: number) => {
     if (score >= 90) return { grade: 'A+', label: 'Leader', color: 'text-primary' };
     if (score >= 80) return { grade: 'A', label: 'Advanced', color: 'text-primary' };
@@ -123,18 +186,10 @@ export const DashboardPage: React.FC = () => {
 
   const { grade, label, color: gradeColor } = getEsgGrade(totalScore);
 
-  // Recharts Donut Data
   const donutData = [
     { name: 'Environmental', value: envScore, weight: envW, color: '#2f9e44', key: 'env' },
     { name: 'Social', value: socScore, weight: socW, color: '#1971c2', key: 'soc' },
     { name: 'Governance', value: govScore, weight: govW, color: '#6741d9', key: 'gov' }
-  ];
-
-  // Radar chart data
-  const radarData = [
-    { subject: 'Environmental', A: envScore, B: 100, fullMark: 100 },
-    { subject: 'Social', A: socScore, B: 100, fullMark: 100 },
-    { subject: 'Governance', A: govScore, B: 100, fullMark: 100 }
   ];
 
   const handleSegmentClick = (data: any) => {
@@ -156,13 +211,23 @@ export const DashboardPage: React.FC = () => {
           </h2>
           <p className="text-xs text-text-secondary mt-1">Real-time aggregate performance index of Environmental, Social, and Governance pillars.</p>
         </div>
-        <button
-          onClick={loadData}
-          className="inline-flex items-center space-x-1 px-3 py-1.5 border border-border bg-base text-xs font-bold text-text-secondary hover:text-text-primary rounded-lg active:scale-95 transition-all shrink-0"
-        >
-          <Sparkles className="h-3.5 w-3.5" />
-          <span>Recalculate Index</span>
-        </button>
+        
+        <div className="flex items-center space-x-3">
+          <button
+            onClick={askEsgCopilot}
+            className="inline-flex items-center space-x-2 bg-[#6741d9] hover:bg-[#522eb0] text-white font-bold py-2 px-4 rounded-lg shadow-md active:scale-95 transition-all text-xs"
+          >
+            <BrainCircuit className="h-4 w-4" />
+            <span>ESG Copilot</span>
+          </button>
+          <button
+            onClick={loadData}
+            className="inline-flex items-center space-x-1.5 px-3.5 py-2 border border-border bg-base text-xs font-bold text-text-secondary hover:text-text-primary rounded-lg active:scale-95 transition-all shrink-0"
+          >
+            <Sparkles className="h-3.5 w-3.5" />
+            <span>Recalculate Index</span>
+          </button>
+        </div>
       </div>
 
       {/* Main centerpiece split */}
@@ -268,9 +333,6 @@ export const DashboardPage: React.FC = () => {
                   <p className="font-bold text-text-primary">Calculation Formula:</p>
                   <p className="text-text-secondary mt-1">
                     $$\text{Score} = \frac{\text{Env} \times {envW} + \text{Soc} \times {socW} + \text{Gov} \times {govW}}{100}$$
-                  </p>
-                  <p className="text-[10px] text-text-secondary/60 mt-2">
-                    Weights can be adjusted by admins under <Link to="/settings/esg-config" className="text-governance hover:underline font-bold">ESG Config</Link>.
                   </p>
                 </div>
 
@@ -443,6 +505,74 @@ export const DashboardPage: React.FC = () => {
         </Card>
 
       </div>
+
+      {/* ESG Advisor Copilot Slideover Modal */}
+      {isCopilotOpen && (
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-end z-50 animate-fade-in">
+          <div className="bg-base border-l border-border h-full w-full max-w-md shadow-2xl flex flex-col justify-between animate-slide-in">
+            {/* Header */}
+            <div className="p-5 border-b border-border flex items-center justify-between">
+              <h3 className="text-sm font-bold text-text-primary uppercase tracking-widest flex items-center space-x-2">
+                <BrainCircuit className="h-5 w-5 text-[#6741d9] animate-pulse" />
+                <span>ESG Advisor Copilot</span>
+              </h3>
+              <button
+                onClick={() => setIsCopilotOpen(false)}
+                className="text-text-secondary hover:text-text-primary p-1 rounded-lg hover:bg-surface transition-all"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            {/* Chat Body */}
+            <div className="flex-1 p-5 overflow-y-auto space-y-4 text-xs text-left">
+              
+              {/* Question bubble */}
+              <div className="flex items-start space-x-2.5 justify-end">
+                <div className="bg-primary/10 text-primary border border-primary/10 p-3 rounded-xl max-w-xs font-semibold leading-relaxed">
+                  Why did our ESG score change? Explain the drivers and suggest improvements.
+                </div>
+              </div>
+
+              {/* AI Answer Bubble */}
+              <div className="flex items-start space-x-2.5">
+                <div className="h-8 w-8 bg-[#6741d9]/10 rounded-full flex items-center justify-center text-sm">
+                  🤖
+                </div>
+                <div className="bg-surface border border-border p-4 rounded-xl max-w-[320px] leading-relaxed space-y-3 font-medium">
+                  {copilotLoading ? (
+                    <div className="flex items-center space-x-2 py-4">
+                      <div className="h-2 w-2 bg-[#6741d9] rounded-full animate-bounce"></div>
+                      <div className="h-2 w-2 bg-[#6741d9] rounded-full animate-bounce [animation-delay:0.2s]"></div>
+                      <div className="h-2 w-2 bg-[#6741d9] rounded-full animate-bounce [animation-delay:0.4s]"></div>
+                      <span className="text-[10px] text-text-secondary/60 uppercase font-black ml-1.5">Analyzing indicators...</span>
+                    </div>
+                  ) : (
+                    <div className="whitespace-pre-wrap text-text-secondary leading-relaxed markdown">
+                      {copilotResponse}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+            </div>
+
+            {/* Footer */}
+            <div className="p-4 border-t border-border bg-surface/20 flex items-center space-x-3">
+              <button
+                onClick={askEsgCopilot}
+                disabled={copilotLoading}
+                className="w-full inline-flex items-center justify-center space-x-1.5 py-2.5 bg-[#6741d9] hover:bg-[#522eb0] text-white border border-transparent font-bold text-xs rounded-xl shadow-md disabled:opacity-50"
+              >
+                <MessageSquareQuote className="h-4 w-4" />
+                <span>Re-Analyze Scores</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };
+export default DashboardPage;

@@ -5,7 +5,7 @@ working log, not documentation._
 
 ## Current phase
 
-**Phase 6 Completed — AI Emission Classifier (full client service calling Gemini API and local Ollama fallback, with confirmable and editable review panels in the carbon ledger) is fully functional. Ready for Phase 7: Shallow Social & Governance CRUD.**
+**Phase 7 & 8 Completed — Social & Governance CRUD dashboards and the AI ESG Copilot Advisor stretch feature are fully functional. Ready for Phase 9: Verification Pass & Demo Prep.**
 
 ## Done
 
@@ -19,14 +19,16 @@ working log, not documentation._
 - [x] Phase 4: Gamification (Challenges catalog, enrollments, proof submissions, atomic RPC reward claims, XP leaderboards, and generic Badge rule evaluation)
 - [x] Phase 5: ESG Score Gauge (weighted centerpiece donut chart with segment-click inspector on Home Dashboard)
 - [x] Phase 6: AI Emission Classifier (structured classification using Gemini API with local Ollama fallback, featuring audit verification UI)
+- [x] Phase 7: Shallow Social + Governance CRUD (CSR activities lists, volunteer log trackers, and compliance policy sign-off ledger)
+- [x] Phase 8: Stretch features (AI ESG Advisor Copilot slideover panel detailing score changes and actionable compliance reminders)
 
 ## In Progress
 
-- [ ] Phase 7: Shallow Social + Governance CRUD
+- [ ] Phase 9: Verification Pass & Demo Prep
 
 ## Not Started (in build order — see `ai-workflow-rules.md`)
 
-- [ ] Phase 8: Stretch features (Score Copilot → NL Report Builder → Recommender → Vision Check)
+- *(all complete)*
 
 ## Open questions / decisions needed
 
@@ -38,8 +40,6 @@ _(none yet)_
 
 ## Next steps
 
-1. Implement Social CRUD queries for CSR Activities and volunteer participations.
-2. Build CSR Activities Catalog page with sign-up trigger and volunteer log trackers.
-3. Implement Governance CRUD queries for ESG Policies and Acknowledgements.
-4. Build Policy documentation reader with sign-off buttons and progress audit tables.
-5. Map Phase 7 routes in `src/App.tsx`.
+1. Execute final type safety build verification pass using `npx tsc --noEmit`.
+2. Commit all remaining changes to Git.
+3. Finalize walkthrough documentation detailing completed features.
