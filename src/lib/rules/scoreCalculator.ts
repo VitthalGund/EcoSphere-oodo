@@ -140,24 +140,56 @@ export const recalculateDepartmentScore = async (
   );
 
   // 5. Upsert result into department_scores
-  const scorePayload = {
-    department_id: departmentId,
-    environmental_score: environmentalScore,
-    social_score: socialScore,
-    governance_score: govScore,
-    total_score: totalScore,
-    period,
-    updated_at: new Date().toISOString(),
-  };
+  // Note: NULL department_id = org-wide score. PostgreSQL NULL != NULL so we
+  // handle the two cases separately to avoid conflict failures.
+  let resultData: DepartmentScore | null = null;
 
-  const { data: upsertData, error: upsertErr } = await supabase
-    .from("department_scores")
-    .upsert(scorePayload, { onConflict: "department_id,period" })
-    .select()
-    .single();
+  if (departmentId === null) {
+    // For org-wide score: delete the existing null-dept row for this period, then insert fresh
+    await supabase
+      .from("department_scores")
+      .delete()
+      .is("department_id", null)
+      .eq("period", period);
 
-  if (upsertErr) throw upsertErr;
-  return upsertData as DepartmentScore;
+    const { data: insertData, error: insertErr } = await supabase
+      .from("department_scores")
+      .insert({
+        department_id: null,
+        environmental_score: environmentalScore,
+        social_score: socialScore,
+        governance_score: govScore,
+        total_score: totalScore,
+        period,
+        updated_at: new Date().toISOString(),
+      })
+      .select();
+
+    if (insertErr) throw insertErr;
+    resultData = (insertData && insertData[0]) as DepartmentScore;
+  } else {
+    // For department scores: use onConflict normally (no NULL issue)
+    const { data: upsertData, error: upsertErr } = await supabase
+      .from("department_scores")
+      .upsert(
+        {
+          department_id: departmentId,
+          environmental_score: environmentalScore,
+          social_score: socialScore,
+          governance_score: govScore,
+          total_score: totalScore,
+          period,
+          updated_at: new Date().toISOString(),
+        },
+        { onConflict: "department_id,period" },
+      )
+      .select();
+
+    if (upsertErr) throw upsertErr;
+    resultData = (upsertData && upsertData[0]) as DepartmentScore;
+  }
+
+  return resultData as DepartmentScore;
 };
 
 // Recomputes score for all departments and then the composite organization score

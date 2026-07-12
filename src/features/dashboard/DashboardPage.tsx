@@ -20,6 +20,7 @@ export const DashboardPage: React.FC = () => {
   const [weights, setWeights] = useState<Omit<ESGConfig, 'id' | 'updated_at'> | null>(null);
   const [departmentScores, setDepartmentScores] = useState<(DepartmentScore & { department_name?: string })[]>([]);
   const [loading, setLoading] = useState(true);
+  const [recalculating, setRecalculating] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   // Selected gauge segment
@@ -30,6 +31,7 @@ export const DashboardPage: React.FC = () => {
   const [copilotLoading, setCopilotLoading] = useState(false);
   const [copilotResponse, setCopilotResponse] = useState<string | null>(null);
 
+  // Just fetch pre-calculated scores — NO recalculation (3 API calls total)
   const loadData = async () => {
     try {
       setLoading(true);
@@ -37,10 +39,7 @@ export const DashboardPage: React.FC = () => {
 
       const period = '2026-07';
 
-      // 1. Recalculate scores
-      await recalculateAllScores(period);
-
-      // 2. Fetch org score
+      // 1. Fetch org score (already calculated)
       const { data: orgData, error: orgErr } = await supabase
         .from('department_scores')
         .select('*')
@@ -51,7 +50,7 @@ export const DashboardPage: React.FC = () => {
       if (orgErr) throw orgErr;
       setOrgScore(orgData as DepartmentScore || null);
 
-      // 3. Fetch weights
+      // 2. Fetch weights
       const { data: wData } = await supabase
         .from('esg_config')
         .select('*')
@@ -69,13 +68,10 @@ export const DashboardPage: React.FC = () => {
         });
       }
 
-      // 4. Fetch department breakdowns
+      // 3. Fetch department breakdowns
       const { data: deptData, error: deptErr } = await supabase
         .from('department_scores')
-        .select(`
-          *,
-          departments:department_id(name)
-        `)
+        .select(`*, departments:department_id(name)`)
         .eq('period', period)
         .not('department_id', 'is', null);
 
@@ -92,6 +88,21 @@ export const DashboardPage: React.FC = () => {
       setError(err.message || 'Failed to load ESG scoring data.');
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Full recalculation — only triggered by button click
+  const handleRecalculate = async () => {
+    try {
+      setRecalculating(true);
+      toast.loading('Recalculating ESG scores...', { id: 'recalc' });
+      await recalculateAllScores('2026-07');
+      await loadData();
+      toast.success('ESG scores recalculated!', { id: 'recalc' });
+    } catch (err: any) {
+      toast.error('Recalculation failed.', { id: 'recalc' });
+    } finally {
+      setRecalculating(false);
     }
   };
 
@@ -120,42 +131,53 @@ Explain in 3 short, professional paragraphs:
 Format in clean bullet points where appropriate. Use concise corporate language.`;
 
       let responseText = "";
-      if (geminiKey && geminiKey.trim() !== "") {
-        try {
-          const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${geminiKey}`;
-          const res = await fetch(url, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
-          });
-          if (res.ok) {
-            const data = await res.json();
-            responseText = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
-          }
-        } catch (e) {
-          console.warn("Gemini copilot failed, trying local Ollama fallback...", e);
-        }
-      }
 
-      if (!responseText) {
-        // Fallback to local Ollama (qwen2.5-coder:7b is installed)
+      // Try Ollama directly (skip Gemini — key is suspended)
+      try {
         const url = 'http://localhost:11434/api/generate';
         const res = await fetch(url, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            model: 'qwen2.5-coder:7b',
+            model: 'qwen2.5:3b',
             prompt: prompt,
             stream: false
-          })
+          }),
+          signal: AbortSignal.timeout(30000) // 30s timeout
         });
         if (res.ok) {
           const data = await res.json();
           responseText = data.response || "";
+        } else {
+          console.warn("Ollama returned non-ok status:", res.status);
+        }
+      } catch (e: any) {
+        if (e.name === 'TimeoutError') {
+          responseText = "⚠️ Ollama timed out. Make sure `ollama serve` is running and `qwen2.5:3b` is pulled.";
+        } else {
+          console.warn("Ollama unreachable, trying Gemini fallback...", e);
+          // Only try Gemini as last resort if key exists
+          const geminiKey2 = import.meta.env.VITE_GEMINI_API_KEY;
+          if (geminiKey2?.trim()) {
+            try {
+              const url2 = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${geminiKey2}`;
+              const res2 = await fetch(url2, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+              });
+              if (res2.ok) {
+                const data2 = await res2.json();
+                responseText = data2.candidates?.[0]?.content?.parts?.[0]?.text || "";
+              }
+            } catch (e2) {
+              console.warn("Gemini also failed:", e2);
+            }
+          }
         }
       }
 
-      setCopilotResponse(responseText || "Sorry, I could not generate score analysis at this time.");
+      setCopilotResponse(responseText || "⚠️ AI Copilot is offline. Make sure Ollama is running locally (`ollama serve`) and the qwen2.5:3b model is pulled (`ollama pull qwen2.5:3b`).");
     } catch (err: any) {
       console.error(err);
       setCopilotResponse("AI Copilot is currently offline. Please verify that your local Ollama server is running at localhost:11434.");
@@ -199,6 +221,26 @@ Format in clean bullet points where appropriate. Use concise corporate language.
     }
   };
 
+  const renderMarkdown = (text: string) => {
+    const lines = text.split('\n');
+    return lines.map((line, i) => {
+      // Bold: **text**
+      const boldParsed = line.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+      // Bullet points: lines starting with - or *
+      const isBullet = /^\s*[-*]\s/.test(line);
+      const content = boldParsed.replace(/^\s*[-*]\s/, '');
+      if (isBullet) {
+        return <li key={i} className="ml-4 text-text-secondary" dangerouslySetInnerHTML={{ __html: content }} />;
+      }
+      if (line.trim() === '') return <br key={i} />;
+      // Heading: lines starting with ###
+      if (/^###\s/.test(line)) {
+        return <p key={i} className="font-black text-text-primary mt-3 mb-1" dangerouslySetInnerHTML={{ __html: boldParsed.replace(/^###\s/, '') }} />;
+      }
+      return <p key={i} className="text-text-secondary" dangerouslySetInnerHTML={{ __html: boldParsed }} />;
+    });
+  };
+
   return (
     <div className="space-y-6">
 
@@ -221,11 +263,12 @@ Format in clean bullet points where appropriate. Use concise corporate language.
             <span>ESG Copilot</span>
           </button>
           <button
-            onClick={loadData}
-            className="inline-flex items-center space-x-1.5 px-3.5 py-2 border border-border bg-base text-xs font-bold text-text-secondary hover:text-text-primary rounded-lg active:scale-95 transition-all shrink-0"
+            onClick={handleRecalculate}
+            disabled={recalculating}
+            className="inline-flex items-center space-x-1.5 px-3.5 py-2 border border-border bg-base text-xs font-bold text-text-secondary hover:text-text-primary rounded-lg active:scale-95 transition-all shrink-0 disabled:opacity-50"
           >
-            <Sparkles className="h-3.5 w-3.5" />
-            <span>Recalculate Index</span>
+            <Sparkles className={`h-3.5 w-3.5 ${recalculating ? 'animate-spin' : ''}`} />
+            <span>{recalculating ? 'Recalculating...' : 'Recalculate Index'}</span>
           </button>
         </div>
       </div>
@@ -547,8 +590,10 @@ Format in clean bullet points where appropriate. Use concise corporate language.
                       <span className="text-[10px] text-text-secondary/60 uppercase font-black ml-1.5">Analyzing indicators...</span>
                     </div>
                   ) : (
-                    <div className="whitespace-pre-wrap text-text-secondary leading-relaxed markdown">
-                      {copilotResponse}
+                    <div className="text-xs leading-relaxed space-y-1">
+                      <ul className="list-disc space-y-1">
+                        {renderMarkdown(copilotResponse || '')}
+                      </ul>
                     </div>
                   )}
                 </div>
