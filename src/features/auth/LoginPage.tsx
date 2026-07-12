@@ -12,7 +12,7 @@ export const LoginPage: React.FC = () => {
   const location = useLocation();
 
   // Redirect target
-  const from = (location.state as any)?.from?.pathname || "/";
+  const from = (location.state as any)?.from?.pathname || "/dashboard";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -32,6 +32,25 @@ export const LoginPage: React.FC = () => {
     } else {
       toast.success("Successfully logged in!");
       // Apply scale fade-out transition by introducing a tiny delay
+      setTimeout(() => {
+        navigate(from, { replace: true });
+      }, 400);
+    }
+  };
+
+  const handleQuickLogin = async (demoEmail: string, demoPassword123: string) => {
+    setEmail(demoEmail);
+    setPassword(demoPassword123);
+    setLoading(true);
+    const { error } = await signIn(demoEmail, demoPassword123);
+
+    if (error) {
+      toast.error(
+        error.message || "Failed to sign in. Please verify your credentials.",
+      );
+      setLoading(false);
+    } else {
+      toast.success("Successfully logged in!");
       setTimeout(() => {
         navigate(from, { replace: true });
       }, 400);
@@ -203,43 +222,57 @@ export const LoginPage: React.FC = () => {
 
           {/* Quick Demo Accounts Helper */}
           <div className="mt-8 pt-6 border-t border-border bg-surface/50 p-4 rounded-xl">
-            <h4 className="text-xs font-bold text-text-secondary uppercase tracking-widest mb-3">
+            <h4 className="text-xs font-bold text-text-secondary uppercase tracking-widest mb-3 text-center">
               Quick demo accounts:
             </h4>
-            <div className="space-y-2 text-xs text-text-secondary">
-              <p>
-                🌱 <strong>Admin:</strong>{" "}
-                <code className="bg-base border border-border px-1 py-0.5 rounded">
-                  priya@ecosphere.com
-                </code>{" "}
-                (pass:{" "}
-                <code className="bg-base border border-border px-1 py-0.5 rounded">
-                  password123
-                </code>
-                )
-              </p>
-              <p>
-                👥 <strong>Dept Head:</strong>{" "}
-                <code className="bg-base border border-border px-1 py-0.5 rounded">
-                  meera@ecosphere.com
-                </code>{" "}
-                (pass:{" "}
-                <code className="bg-base border border-border px-1 py-0.5 rounded">
-                  password123
-                </code>
-                )
-              </p>
-              <p>
-                🏆 <strong>Employee:</strong>{" "}
-                <code className="bg-base border border-border px-1 py-0.5 rounded">
-                  raj@ecosphere.com
-                </code>{" "}
-                (pass:{" "}
-                <code className="bg-base border border-border px-1 py-0.5 rounded">
-                  password123
-                </code>
-                )
-              </p>
+            <div className="space-y-2.5">
+              <button
+                type="button"
+                onClick={() => handleQuickLogin("priya@ecosphere.com", "password123")}
+                disabled={loading}
+                className="w-full flex items-center justify-between p-2.5 rounded-lg border border-border bg-base hover:bg-surface text-left transition-all active:scale-[0.98] cursor-pointer"
+              >
+                <div className="flex items-center space-x-2">
+                  <span className="text-sm">🌱</span>
+                  <div>
+                    <p className="text-xs font-bold text-text-primary">Admin (Priya)</p>
+                    <p className="text-[10px] text-text-secondary">priya@ecosphere.com</p>
+                  </div>
+                </div>
+                <span className="text-[10px] font-bold text-primary bg-primary/10 px-2 py-1 rounded">Quick Login</span>
+              </button>
+              
+              <button
+                type="button"
+                onClick={() => handleQuickLogin("meera@ecosphere.com", "password123")}
+                disabled={loading}
+                className="w-full flex items-center justify-between p-2.5 rounded-lg border border-border bg-base hover:bg-surface text-left transition-all active:scale-[0.98] cursor-pointer"
+              >
+                <div className="flex items-center space-x-2">
+                  <span className="text-sm">👥</span>
+                  <div>
+                    <p className="text-xs font-bold text-text-primary">Dept Head (Meera)</p>
+                    <p className="text-[10px] text-text-secondary">meera@ecosphere.com</p>
+                  </div>
+                </div>
+                <span className="text-[10px] font-bold text-primary bg-primary/10 px-2 py-1 rounded">Quick Login</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleQuickLogin("raj@ecosphere.com", "password123")}
+                disabled={loading}
+                className="w-full flex items-center justify-between p-2.5 rounded-lg border border-border bg-base hover:bg-surface text-left transition-all active:scale-[0.98] cursor-pointer"
+              >
+                <div className="flex items-center space-x-2">
+                  <span className="text-sm">🏆</span>
+                  <div>
+                    <p className="text-xs font-bold text-text-primary">Employee (Raj)</p>
+                    <p className="text-[10px] text-text-secondary">raj@ecosphere.com</p>
+                  </div>
+                </div>
+                <span className="text-[10px] font-bold text-primary bg-primary/10 px-2 py-1 rounded">Quick Login</span>
+              </button>
             </div>
           </div>
         </div>
