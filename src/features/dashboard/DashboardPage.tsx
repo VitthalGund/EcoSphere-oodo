@@ -132,47 +132,49 @@ Format in clean bullet points where appropriate. Use concise corporate language.
 
       let responseText = "";
 
-      // Try Ollama directly (skip Gemini — key is suspended)
+      // Try Gemini first
       try {
-        const url = 'http://localhost:11434/api/generate';
-        const res = await fetch(url, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            model: 'qwen2.5:3b',
-            prompt: prompt,
-            stream: false
-          }),
-          signal: AbortSignal.timeout(30000) // 30s timeout
-        });
-        if (res.ok) {
-          const data = await res.json();
-          responseText = data.response || "";
+        if (geminiKey?.trim()) {
+          const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${geminiKey}`;
+          const res = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+          });
+          if (res.ok) {
+            const data = await res.json();
+            responseText = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
+          } else {
+             throw new Error("Gemini API non-ok status: " + res.status);
+          }
         } else {
-          console.warn("Ollama returned non-ok status:", res.status);
+          throw new Error("Gemini API key not found");
         }
       } catch (e: any) {
-        if (e.name === 'TimeoutError') {
-          responseText = "⚠️ Ollama timed out. Make sure `ollama serve` is running and `qwen2.5:3b` is pulled.";
-        } else {
-          console.warn("Ollama unreachable, trying Gemini fallback...", e);
-          // Only try Gemini as last resort if key exists
-          const geminiKey2 = import.meta.env.VITE_GEMINI_API_KEY;
-          if (geminiKey2?.trim()) {
-            try {
-              const url2 = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${geminiKey2}`;
-              const res2 = await fetch(url2, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
-              });
-              if (res2.ok) {
-                const data2 = await res2.json();
-                responseText = data2.candidates?.[0]?.content?.parts?.[0]?.text || "";
-              }
-            } catch (e2) {
-              console.warn("Gemini also failed:", e2);
-            }
+        console.warn("Gemini failed or not configured, falling back to Ollama...", e);
+        try {
+          const url = 'http://localhost:11434/api/generate';
+          const res = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              model: 'qwen2.5:3b',
+              prompt: prompt,
+              stream: false
+            }),
+            signal: AbortSignal.timeout(120000) // 120s timeout
+          });
+          if (res.ok) {
+            const data = await res.json();
+            responseText = data.response || "";
+          } else {
+            console.warn("Ollama returned non-ok status:", res.status);
+          }
+        } catch (e2: any) {
+          if (e2.name === 'TimeoutError') {
+            responseText = "⚠️ Ollama timed out. Make sure `ollama serve` is running and `qwen2.5:3b` is pulled.";
+          } else {
+             console.warn("Ollama also failed:", e2);
           }
         }
       }
@@ -372,10 +374,16 @@ Format in clean bullet points where appropriate. Use concise corporate language.
             {selectedPillar === 'total' && (
               <div className="space-y-6 text-xs text-left leading-relaxed">
                 <div className="bg-surface/40 p-3 rounded-lg border border-border">
-                  <p className="font-bold text-text-primary">Calculation Formula:</p>
-                  <p className="text-text-secondary mt-1">
-                    {"$$\\text{Score} = \\frac{\\text{Env} \\times " + envW + " + \\text{Soc} \\times " + socW + " + \\text{Gov} \\times " + govW + "}{100}$$"}
-                  </p>
+                  <p className="font-bold text-text-primary mb-2">Calculation Formula:</p>
+                  <div className="flex items-center text-sm font-medium text-text-secondary">
+                    <span className="mr-2">Score =</span>
+                    <div className="flex flex-col items-center">
+                      <span className="border-b border-text-secondary/50 px-2 pb-0.5">
+                        Env &times; {envW} + Soc &times; {socW} + Gov &times; {govW}
+                      </span>
+                      <span className="pt-0.5">100</span>
+                    </div>
+                  </div>
                 </div>
 
                 <div className="space-y-3">
