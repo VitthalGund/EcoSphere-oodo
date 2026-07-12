@@ -65,7 +65,7 @@ export const CarbonTransactionsPage: React.FC = () => {
   // AI Assist Classifier Modal State
   const [isAiModalOpen, setIsAiModalOpen] = useState(false);
   const [aiInput, setAiInput] = useState("");
-  const [aiModel, setAiModel] = useState("qwen2.5:3b");
+  const [aiModel, setAiModel] = useState("qwen2.5-coder:7b");
   const [aiLoading, setAiLoading] = useState(false);
   const [aiResult, setAiResult] = useState<
     (ClassificationResult & { provider: "gemini" | "ollama" }) | null
@@ -775,9 +775,10 @@ export const CarbonTransactionsPage: React.FC = () => {
                   onChange={(e) => setAiModel(e.target.value)}
                   className="border border-border rounded-lg bg-base px-2.5 py-1.5 text-xs text-text-primary focus:outline-none"
                 >
-                  <option value="qwen2.5:3b">qwen2.5:3b (Recommended)</option>
-                  <option value="gemma2:2b">gemma2:2b (Lightweight)</option>
-                  <option value="llama3:8b">llama3:8b (Standard)</option>
+                  <option value="qwen2.5-coder:7b">qwen2.5-coder:7b (Installed)</option>
+                  <option value="qwen2.5:1.5b">qwen2.5:1.5b (Installed)</option>
+                  <option value="llama3.2:1b">llama3.2:1b (Installed)</option>
+                  <option value="qwen2.5:3b">qwen2.5:3b (Recommended - Not Pull)</option>
                 </select>
               </div>
 
